@@ -1,9 +1,9 @@
 "use client";
 
-import { LetterBag, LetterType, LetterTile } from "@/types/letters";
+import { LetterDecks, LetterType, LetterTile } from "@/types/letters";
 
 export interface LetterSelectorProps {
-  bag: LetterBag;
+  decks: LetterDecks;
   disabled: boolean;
   board: LetterTile[];
   onSelect: (type: LetterType) => void;
@@ -11,27 +11,14 @@ export interface LetterSelectorProps {
 }
 
 export function LetterSelector({
-  bag,
+  decks,
   board,
   disabled,
   onSelect,
   onRandomFill,
 }: LetterSelectorProps) {
-  const vowelPool = bag["vowel"];
-  const consonantPool = bag["consonant"];
-
-  const vowels = Object.keys(vowelPool);
-  const consonants = Object.keys(consonantPool);
-
-  let vowelTotal = 0;
-  let consonantTotal = 0;
-
-  for (const vowel of vowels) {
-    vowelTotal += vowelPool[vowel];
-  }
-  for (const consonant of consonants) {
-    consonantTotal += consonantPool[consonant];
-  }
+  const vowelTotal = decks.vowel.length;
+  const consonantTotal = decks.consonant.length;
 
   const vowelSoFar = board.filter((t) => t.type === "vowel").length;
   const consonantSoFar = board.filter((t) => t.type === "consonant").length;
