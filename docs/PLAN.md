@@ -220,7 +220,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - `BUZZ` captures the time remaining once. Ticks never enter the reducer.
   - Scoring is a flat 10.
   - Tag: `checkpoint/conundrum-reducer`.
-- [ ] **UI:** `app/conundrum/page.tsx` and `components/conundrum/*`, built on the M2 primitives (`checkpoint/conundrum-ui`).
+- [x] **UI:** `app/conundrum/page.tsx` and `components/conundrum/*`, built on the M2 primitives (`checkpoint/conundrum-ui`).
 
 ### M4: Daily mode (local-first)
 - [ ] `lib/daily/seed.ts`: `dailyKey(date)` → local `YYYY-MM-DD`; `dailyRng(key, gameId)`, which gives each game its own stream.
