@@ -164,7 +164,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - Shuffle them on `NEW_ROUND` using the injected rng.
   - `SELECT_LETTER` and `RANDOM_FILL` draw from the top immutably. No `.push` and no derived counts in state.
   - Tag: `checkpoint/letters-bag`.
-- [ ] **Trie** in `lib/letters/trie.ts`:
+- [x] **Trie** in `lib/letters/trie.ts`:
   - `insert`, `has`, `hasPrefix`.
   - `findWords(counts: Map<string, number>)` is a DFS that only follows letters whose remaining count is above 0.
   - It is built lazily from the cached word text after the round ends.
