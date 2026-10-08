@@ -1,4 +1,4 @@
-import { NumbersOperator, NumbersValidationStatus } from "@/types/numbers";
+import { NumbersOperator } from "@/types/numbers";
 import { applyOperator } from "./arithmetic";
 
 // Free-text answers: the player types something like "(100 + 4) * 5 - 25".

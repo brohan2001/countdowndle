@@ -136,22 +136,22 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 ## 2. Work Breakdown Structure (in execution order; each [ ] = one checkpoint, tag in parentheses)
 
 ### M0: Baseline & infrastructure
-- [ ] Gitignore `.history/`. Commit everything as the baseline (`checkpoint/baseline`).
-- [ ] Set up vitest:
+- [x] Gitignore `.history/`. Commit everything as the baseline (`checkpoint/baseline`).
+- [x] Set up vitest:
   - Install vitest (dev dependency).
   - Add `vitest.config.ts` with the `@/` alias and the node environment.
   - Add the scripts `test` and `test:run`.
-- [ ] Write characterization tests that lock current behaviour before any refactor (`checkpoint/test-harness`). They cover:
+- [x] Write characterization tests that lock current behaviour before any refactor (`checkpoint/test-harness`). They cover:
   - `arithmetic`
   - `expression`
   - scoring for both games
   - `validateWord`
   - the Letters and Numbers reducer transitions
-- [ ] Rewrite CLAUDE.md:
+- [x] Rewrite CLAUDE.md:
   - Replace the Mentorship Rules with the orchestrator workflow and delegation rules.
   - Resolve open question 5.
   - Record the decisions table above.
-- [ ] Update memory: replace `project_pivot_agent_automation.md` with the resolved decision.
+- [x] Update memory: replace `project_pivot_agent_automation.md` with the resolved decision.
 
 ### M1: Core algorithms (run the "Numbers declare + timed prove" item, at the end of this list, **first**)
 - [ ] **Seeded RNG** in `lib/shared/random.ts`:

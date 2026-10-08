@@ -11,17 +11,16 @@ export interface ScoreDisplayProps {
 
 export function ScoreDisplay({ totalScore, lastRoundPoints, roundId }: ScoreDisplayProps) {
 
-  const [showPoints,setShowPoints] = useState(false);
+  // The "+N" flash is derived: visible until its own round's timeout marks
+  // that roundId as dismissed.
+  const [dismissedRound, setDismissedRound] = useState<number | null>(null);
+  const showPoints = lastRoundPoints != null && dismissedRound !== roundId;
 
   useEffect(() => {
-    if (lastRoundPoints == null){
-        setShowPoints(false);
-        return;
-    }
-    setShowPoints(true);
-    
+    if (lastRoundPoints == null) return;
+
     const timeout = setTimeout(() => {
-        setShowPoints(false);
+      setDismissedRound(roundId);
     }, 2000);
 
     return () => clearTimeout(timeout);
