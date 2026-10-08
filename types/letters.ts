@@ -1,3 +1,5 @@
+import type { Rng } from "@/lib/shared/random";
+
 export type LetterType = "vowel" | "consonant";
 
 export interface LetterTile {
@@ -16,9 +18,11 @@ export const MAX_BOARD_SIZE = 9;
 export const ROUND_DURATION_SECONDS = 30;
 export const MIN_WORD_LENGTH = 4;
 
-export interface LetterBag {
-  vowel: Record<string, number>; // remaining count per vowel, e.g. { A: 15, E: 21, ... }
-  consonant: Record<string, number>; // remaining count per consonant
+// Finite, pre-shuffled decks of letters (a weighted multiset, drawn from the
+// top without replacement). Index 0 is the next letter to be drawn.
+export interface LetterDecks {
+  vowel: string[];
+  consonant: string[];
 }
 
 export type WordValidationStatus =
@@ -44,7 +48,7 @@ export interface LettersRoundResult {
 export interface LettersGameState {
   phase: LettersGamePhase;
   board: LetterTile[];
-  bag: LetterBag;
+  decks: LetterDecks;
   timeRemainingSeconds: number;
   currentInput: string;
   lastRoundResult: LettersRoundResult | null;
@@ -58,5 +62,5 @@ export type LettersGameAction =
   | { type: "UPDATE_INPUT"; value: string }
   | { type: "SUBMIT_WORD"; word: string; dictionary: Set<string> }
   | { type: "TIME_EXPIRED" }
-  | { type: "RESET_ROUND" }
-  | { type: "RANDOM_FILL" };
+  | { type: "RESET_ROUND"; rng?: Rng }
+  | { type: "RANDOM_FILL"; rng?: Rng };

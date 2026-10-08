@@ -1,6 +1,12 @@
 "use client";
 
-import { NumbersRoundResult, NumbersValidationStatus } from "@/types/numbers";
+import { useMemo } from "react";
+import {
+  NumbersRoundResult,
+  NumbersValidationStatus,
+  OPERATOR_SYMBOLS,
+} from "@/types/numbers";
+import { solveNumbers } from "@/lib/numbers/solver";
 
 export interface NumbersResultPanelProps {
   result: NumbersRoundResult | null;
@@ -24,6 +30,13 @@ export function NumbersResultPanel({
   result,
   onNextRound,
 }: NumbersResultPanelProps) {
+  // Runs once per finished round (well under 50ms), never during play.
+  const best = useMemo(
+    () =>
+      result ? solveNumbers(result.drawnNumbers, result.target) : null,
+    [result],
+  );
+
   if (result === null) {
     return null;
   }
@@ -78,6 +91,24 @@ export function NumbersResultPanel({
           </dd>
         </div>
       </dl>
+
+      {best && best.steps.length > 0 && (
+        <div className="w-full border-t border-gray-200 pt-4 text-center dark:border-gray-700">
+          <p className="text-sm font-semibold text-gray-900 dark:text-white">
+            {best.difference === 0
+              ? "Solvable exactly:"
+              : `Closest possible: ${best.value} (off by ${best.difference})`}
+          </p>
+          <ol className="mt-1 font-mono text-sm text-gray-700 dark:text-gray-300">
+            {best.steps.map((step) => (
+              <li key={step.id}>
+                {step.operand1.value} {OPERATOR_SYMBOLS[step.operator]}{" "}
+                {step.operand2.value} = {step.resultTile.value}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       <button
         type="button"

@@ -6,23 +6,22 @@ import {
   ROUND_DURATION_SECONDS,
   LettersRoundResult,
   LetterTile,
+  LetterType,
 } from "@/types/letters";
 import {
-  createInitialBag,
-  drawLetter,
+  createDecks,
+  drawFromDecks,
   pickRandomFillCounts,
 } from "./lettersPool";
 import { validateWord } from "./dictionary";
 import { scoreWord } from "./scoring";
-import { shuffle } from "../shared/random";
+import { Rng, shuffle } from "../shared/random";
 
-export function createInitialState(): LettersGameState {
-  // TODO: build the very first state, phase 'idle', empty board,
-  // fresh bag, totalScore 0, empty history
+export function createInitialState(rng: Rng = Math.random): LettersGameState {
   return {
     phase: "idle",
     board: [],
-    bag: createInitialBag(),
+    decks: createDecks(rng),
     timeRemainingSeconds: ROUND_DURATION_SECONDS,
     currentInput: "",
     lastRoundResult: null,
@@ -54,17 +53,22 @@ export function lettersGameReducer(
         return state;
       }
 
-      const { tile: newTile, bag: updatedBag } = drawLetter(
-        state.bag,
+      const drawn = drawFromDecks(
+        state.decks,
         action.letterType,
+        `tile-${state.board.length}`,
       );
+      if (drawn === null) {
+        return state;
+      }
+      const { tile: newTile, decks: updatedDecks } = drawn;
       const updatedBoard = [...state.board, newTile];
       const newPhase =
         updatedBoard.length >= MAX_BOARD_SIZE ? "solving" : "selecting";
 
       return {
         ...state,
-        bag: updatedBag,
+        decks: updatedDecks,
         board: updatedBoard,
         phase: newPhase,
       };
@@ -133,9 +137,9 @@ export function lettersGameReducer(
         history: [...state.history, roundResult],
       };
     }
-    case "RESET_ROUND": // TODO
+    case "RESET_ROUND":
       return {
-        ...createInitialState(),
+        ...createInitialState(action.rng),
         totalScore: state.totalScore,
         history: state.history,
       };
@@ -143,26 +147,9 @@ export function lettersGameReducer(
       return state; // intentionally a no-op, per the decision above
 
     case "RANDOM_FILL": {
-      // TODO 1: guard — only legal during 'idle' or 'selecting' (mirror canPickLetter's
-      // two phases; if board is already full/solving/roundOver, return state unchanged)
-      // TODO 2: derive vowelsSoFar/consonantsSoFar from state.board (same pattern as
-      // SELECT_LETTER), and remainingSlots = MAX_BOARD_SIZE - state.board.length
-      // TODO 3: const { vowelsToAdd, consonantsToAdd } = pickRandomFillCounts(...)
-      // TODO 4: draw that many letters — loop `vowelsToAdd` times calling drawLetter(bag, 'vowel'),
-      // then `consonantsToAdd` times for 'consonant'. IMPORTANT: drawLetter returns a NEW bag
-      // each call (same reference-vs-value lesson from your very first lettersPool.ts review) —
-      // thread the returned bag into the next call, don't reuse the original `state.bag`
-      // for every draw or you'll double-count remaining letters.
-      // TODO 5: shuffle() the newly drawn tiles (lib/shared/random.ts — your own Fisher-Yates)
-      // before appending, so the board doesn't visibly read as "all vowels then all consonants"
-      // TODO 6: new board = [...state.board, ...shuffledNewTiles]; phase becomes 'solving'
-      // (guaranteed, since remainingSlots always brings the board to exactly 9)
-
       if (!(state.phase === "idle" || state.phase === "selecting")) {
         return state;
       }
-      let remainingBoard: LetterTile[] = [];
-      let currentBag = state.bag;
       const vowelsSoFar = state.board.filter((t) => t.type === "vowel").length;
       const consonantsSoFar = state.board.filter(
         (t) => t.type === "consonant",
@@ -172,25 +159,35 @@ export function lettersGameReducer(
         vowelsSoFar,
         consonantsSoFar,
         remainingSlots,
+        action.rng,
       );
 
-      for (let i = 0; i < vowelsToAdd; i++) {
-        const { tile, bag } = drawLetter(currentBag, "vowel");
-        remainingBoard.push(tile);
-        currentBag = bag;
-      }
-      for (let j = 0; j < consonantsToAdd; j++) {
-        const { tile, bag } = drawLetter(currentBag, "consonant");
-        remainingBoard.push(tile);
-        currentBag = bag;
+      // Draw from the top of each deck, threading the shrinking decks through.
+      let decks = state.decks;
+      const drawnTiles: LetterTile[] = [];
+      const plan: Array<[LetterType, number]> = [
+        ["vowel", vowelsToAdd],
+        ["consonant", consonantsToAdd],
+      ];
+      for (const [type, count] of plan) {
+        for (let i = 0; i < count; i++) {
+          const drawn = drawFromDecks(
+            decks,
+            type,
+            `tile-${state.board.length + drawnTiles.length}`,
+          );
+          if (drawn === null) return state;
+          drawnTiles.push(drawn.tile);
+          decks = drawn.decks;
+        }
       }
 
-      remainingBoard = shuffle(remainingBoard);
-
+      // Shuffle so the board doesn't read as "all vowels then consonants".
+      // Ids stay with their tile, so order on the board is what changes.
       return {
         ...state,
-        bag: currentBag,
-        board: [...state.board, ...remainingBoard],
+        decks,
+        board: [...state.board, ...shuffle(drawnTiles, action.rng)],
         phase: "solving",
       };
     }
@@ -199,6 +196,6 @@ export function lettersGameReducer(
   }
 }
 
-export function useLettersGame() {
-  return useReducer(lettersGameReducer, undefined, createInitialState);
+export function useLettersGame(rng?: Rng) {
+  return useReducer(lettersGameReducer, rng, createInitialState);
 }

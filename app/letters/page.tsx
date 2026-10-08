@@ -72,7 +72,7 @@ export default function LettersPage() {
 
       {/* Vowel / Consonant selectors */}
       <LetterSelector
-        bag={state.bag}
+        decks={state.decks}
         board={state.board}
         disabled={!canPickLetter}
         onSelect={(letterType) =>
@@ -93,6 +93,7 @@ export default function LettersPage() {
       {/* Results overlay / modal panel: state.lastRoundResult is null except during roundOver */}
       <RoundResultPanel
         result={state.lastRoundResult}
+        dictionary={dictionary}
         onNextRound={() => dispatch({ type: "RESET_ROUND" })}
       />
     </main>
