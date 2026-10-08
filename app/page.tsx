@@ -8,6 +8,11 @@ const MODES = [
     blurb: "One shared set of puzzles a day. Keep your streak, share your grid.",
   },
   {
+    href: "/duel",
+    title: "Duel",
+    blurb: "Play a friend live: one round of each, first to the finish.",
+  },
+  {
     href: "/letters",
     title: "Letters",
     blurb: "Nine tiles, thirty seconds. Make the longest word you can.",
