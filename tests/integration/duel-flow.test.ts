@@ -91,7 +91,12 @@ run("full duel through the authoritative service (local stack)", () => {
     await submitLetters(deps, A, matchId, best.top[0]);
     await expectFail(submitLetters(deps, A, matchId, best.top[0]), 409); // one each
     await expectFail(submitLetters(deps, C, matchId, "word"), 403); // outsider
-    expect((await state()).phase).toBe("playing");
+    const midRound = await state();
+    expect(midRound.phase).toBe("playing");
+    // Readable state shows A has submitted but not how well.
+    expect(midRound.round?.kind === "letters" && midRound.round.points).toEqual({ [A]: 0 });
+    const viaB = (await cb.from("matches").select("state").eq("id", matchId).single()).data!.state as MatchState;
+    expect(viaB.round?.kind === "letters" && viaB.round.points).toEqual({ [A]: 0 });
     expect((await cb.from("round_submissions").select("*").eq("round_id", row.id)).data).toEqual([]); // B can't see A's word yet
     await submitLetters(deps, B, matchId, "zzzzqqqq"); // not a word -> 0
 
