@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { lettersGameReducer, createInitialState } from "@/lib/letters/useLettersGame";
 import { LettersGameState } from "@/types/letters";
+import { mulberry32 } from "@/lib/shared/random";
 
 const dict = new Set(["table"]);
 
@@ -35,13 +36,47 @@ describe("letters reducer", () => {
     const full = fill(createInitialState(), 4, 5);
     expect(lettersGameReducer(full, { type: "SELECT_LETTER", letterType: "vowel" })).toBe(full);
   });
-  it("does not mutate the previous state when drawing", () => {
+  it("draws from the top of the deck without mutating the previous state", () => {
     const s0 = createInitialState();
-    const total = (b: typeof s0.bag) => Object.values(b.vowel).reduce((a, n) => a + n, 0);
-    const before = total(s0.bag);
+    const topVowel = s0.decks.vowel[0];
+    const vowelCount = s0.decks.vowel.length;
     const s1 = lettersGameReducer(s0, { type: "SELECT_LETTER", letterType: "vowel" });
-    expect(total(s0.bag)).toBe(before);
-    expect(total(s1.bag)).toBe(before - 1);
+    expect(s1.board[0].letter).toBe(topVowel);
+    expect(s0.decks.vowel).toHaveLength(vowelCount);
+    expect(s1.decks.vowel).toHaveLength(vowelCount - 1);
+    expect(s1.decks.vowel).toEqual(s0.decks.vowel.slice(1));
+    expect(s1.decks.consonant).toBe(s0.decks.consonant);
+  });
+  it("is reproducible from a seeded rng", () => {
+    const a = createInitialState(mulberry32(123));
+    const b = createInitialState(mulberry32(123));
+    expect(a.decks).toEqual(b.decks);
+    expect(createInitialState(mulberry32(124)).decks).not.toEqual(a.decks);
+  });
+  it("decks hold the real tile-set frequencies", () => {
+    const d = createInitialState().decks;
+    expect(d.vowel).toHaveLength(67);
+    expect(d.consonant).toHaveLength(74);
+    expect(d.vowel.filter((l) => l === "E")).toHaveLength(21);
+    expect(d.consonant.filter((l) => l === "Q")).toHaveLength(1);
+  });
+  it("a round can never draw a letter more often than the deck holds", () => {
+    // Only one Q exists, so drawing every consonant never yields two.
+    let s = createInitialState(mulberry32(5));
+    for (let i = 0; i < 6; i++) s = lettersGameReducer(s, { type: "SELECT_LETTER", letterType: "consonant" });
+    expect(s.board.filter((t) => t.letter === "Q").length).toBeLessThanOrEqual(1);
+  });
+  it("RANDOM_FILL draws from the decks and uses unique tile ids", () => {
+    const s0 = createInitialState(mulberry32(8));
+    const s = lettersGameReducer(s0, { type: "RANDOM_FILL", rng: mulberry32(8) });
+    expect(new Set(s.board.map((t) => t.id)).size).toBe(9);
+    expect(s.decks.vowel.length + s.decks.consonant.length).toBe(67 + 74 - 9);
+    const drawn = s.board.map((t) => t.letter).sort();
+    const expected = [
+      ...s0.decks.vowel.slice(0, s.board.filter((t) => t.type === "vowel").length),
+      ...s0.decks.consonant.slice(0, s.board.filter((t) => t.type === "consonant").length),
+    ].sort();
+    expect(drawn).toEqual(expected);
   });
   it("RANDOM_FILL always yields a legal 9-tile board", () => {
     for (let i = 0; i < 50; i++) {
@@ -84,5 +119,6 @@ describe("letters reducer", () => {
     expect(reset.phase).toBe("idle");
     expect(reset.board).toHaveLength(0);
     expect(reset.history).toHaveLength(1);
+    expect(reset.decks.vowel).toHaveLength(67); // fresh decks every round
   });
 });

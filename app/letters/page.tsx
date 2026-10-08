@@ -72,7 +72,7 @@ export default function LettersPage() {
 
       {/* Vowel / Consonant selectors */}
       <LetterSelector
-        bag={state.bag}
+        decks={state.decks}
         board={state.board}
         disabled={!canPickLetter}
         onSelect={(letterType) =>

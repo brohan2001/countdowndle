@@ -1,6 +1,6 @@
 // lib/letters/letterPool.ts
-import { LetterBag, LetterType, LetterTile } from "@/types/letters";
-import { Rng, randomInt } from "../shared/random";
+import { LetterDecks, LetterType, LetterTile } from "@/types/letters";
+import { Rng, randomInt, shuffle } from "../shared/random";
 
 // TODO: source real vowel/consonant frequency counts and hardcode them here
 const VOWEL_COUNTS: Record<string, number> = {
@@ -34,63 +34,35 @@ const CONSONANT_COUNTS: Record<string, number> = {
   Z: 1,
 };
 
-export function createInitialBag(): LetterBag {
-  // TODO: return a fresh LetterBag from the constants above
-  return { vowel: { ...VOWEL_COUNTS }, consonant: { ...CONSONANT_COUNTS } };
+function expand(counts: Record<string, number>): string[] {
+  return Object.entries(counts).flatMap(([letter, n]) =>
+    Array.from({ length: n }, () => letter),
+  );
 }
 
-export function drawLetter(
-  bag: LetterBag,
+// A fresh round's decks: every letter repeated by its frequency, then
+// Fisher-Yates shuffled. Drawing is just taking from the top, so the whole
+// round's letters are fixed by the rng up front (seedable for Daily).
+export function createDecks(rng: Rng = Math.random): LetterDecks {
+  return {
+    vowel: shuffle(expand(VOWEL_COUNTS), rng),
+    consonant: shuffle(expand(CONSONANT_COUNTS), rng),
+  };
+}
+
+// Takes the top letter of one deck. Returns null if that deck is empty.
+// Never mutates `decks`.
+export function drawFromDecks(
+  decks: LetterDecks,
   type: LetterType,
-  rng: Rng = Math.random,
-): { tile: LetterTile; bag: LetterBag } {
-  // TODO: weighted-random pick from bag[type], decrement that letter's count,
-  // return a new tile + a new (not mutated) LetterBag
-  const pool = bag[type];
-
-  const letters = Object.keys(pool);
-
-  let total = 0;
-
-  for (const letter of letters) {
-    total += pool[letter];
-  }
-
-  if (total == 0) {
-    throw new Error(`No ${type} letters left in the bag`);
-  }
-
-  const random = rng() * total;
-
-  let cumulative = 0;
-
-  for (const letter of letters) {
-    cumulative += pool[letter];
-
-    if (random < cumulative) {
-      const newPool = {
-        ...pool,
-        [letter]: pool[letter] - 1,
-      };
-
-      const newBag: LetterBag = {
-        ...bag,
-        [type]: newPool,
-      };
-
-      const tile: LetterTile = {
-        id: crypto.randomUUID(),
-        letter: letter,
-        type: type,
-      };
-
-      return {
-        tile: tile,
-        bag: newBag,
-      };
-    }
-  }
-  throw new Error("Failed to draw a letter");
+  id: string,
+): { tile: LetterTile; decks: LetterDecks } | null {
+  const [letter, ...rest] = decks[type];
+  if (letter === undefined) return null;
+  return {
+    tile: { id, letter, type },
+    decks: { ...decks, [type]: rest },
+  };
 }
 
 export function pickRandomFillCounts(

@@ -159,7 +159,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - `shuffle(items, rng = Math.random)` becomes non-mutating, returning a copy. Update its callers.
   - Thread an optional `rng` through `drawLetter`, `pickRandomFillCounts`, the `numberPool` draws and `pickTarget`.
   - Tag: `checkpoint/seeded-prng`.
-- [ ] **Finite letter bag**:
+- [x] **Finite letter bag**:
   - Add a vowel deck and a consonant deck (weighted multisets) to `LettersGameState`.
   - Shuffle them on `NEW_ROUND` using the injected rng.
   - `SELECT_LETTER` and `RANDOM_FILL` draw from the top immutably. No `.push` and no derived counts in state.

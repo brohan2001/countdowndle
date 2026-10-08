@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mulberry32, hashString, rngFromString, shuffle, randomInt } from "@/lib/shared/random";
 import { drawNumbers, pickTarget } from "@/lib/numbers/numberPool";
-import { createInitialBag, drawLetter, pickRandomFillCounts } from "@/lib/letters/lettersPool";
+import { createDecks, pickRandomFillCounts } from "@/lib/letters/lettersPool";
 
 const take = (r: () => number, n: number) => Array.from({ length: n }, r);
 
@@ -50,19 +50,8 @@ describe("seeded draws", () => {
     expect(pickTarget(mulberry32(5))).toBe(pickTarget(mulberry32(5)));
     expect(v(5)).toHaveLength(6);
   });
-  it("letters: same seed → same letters", () => {
-    const letters = (seed: number) => {
-      const r = mulberry32(seed);
-      let bag = createInitialBag();
-      const out: string[] = [];
-      for (let i = 0; i < 5; i++) {
-        const d = drawLetter(bag, "consonant", r);
-        bag = d.bag;
-        out.push(d.tile.letter);
-      }
-      return out;
-    };
-    expect(letters(11)).toEqual(letters(11));
+  it("letters: same seed → same decks", () => {
+    expect(createDecks(mulberry32(11))).toEqual(createDecks(mulberry32(11)));
     expect(pickRandomFillCounts(0, 0, 9, mulberry32(2))).toEqual(pickRandomFillCounts(0, 0, 9, mulberry32(2)));
   });
 });
