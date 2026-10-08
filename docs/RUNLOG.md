@@ -11,3 +11,4 @@
 | 2026-10-09 | checkpoint/letters-best-word | tsc ✓ lint ✓ test 76 ✓ | analyzeBestWords + RoundResultPanel section (best length, longest set, also-ran list, matched-best). needs-visual-QA |
 | 2026-10-09 | checkpoint/numbers-solver | tsc ✓ lint ✓ test 82 ✓ build ✓ | solveNumbers (pair DFS, applyOperator legality, memo by sorted state, early exit); worst case <30ms so no Web Worker needed; shown in NumbersResultPanel. needs-visual-QA. M1 complete. |
 | 2026-10-09 | checkpoint/ui-tokens | tsc ✓ build ✓ | @theme tokens + Fraunces/Karla via next/font; dark mode removed. (Existing pages still use gray/blue until ported.) |
+| 2026-10-09 | checkpoint/ui-primitives | tsc ✓ lint ✓ | Button, Panel, Tile, TabSelector, DialTimer/DialFace (written directly; small enough that delegation overhead exceeded the work). needs-visual-QA |

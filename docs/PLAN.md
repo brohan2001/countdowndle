@@ -203,7 +203,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 
 ### M2: Visual skins (Studio Desk; comes before Conundrum's UI so nothing is styled twice)
 - [x] Tokens and fonts: Tailwind v4 `@theme` tokens in `app/globals.css`, Fraunces and Karla via `next/font` in `app/layout.tsx` (`checkpoint/ui-tokens`).
-- [ ] Primitives in `components/ui/`: `Button`, `Tile`, `Panel`, `TabSelector`, `DialTimer` (replacing `Timer`) (`checkpoint/ui-primitives`).
+- [x] Primitives in `components/ui/`: `Button`, `Tile`, `Panel`, `TabSelector`, `DialTimer` (replacing `Timer`) (`checkpoint/ui-primitives`).
 - [ ] Port Letters, then Numbers, onto the primitives. Markup and classes only (`checkpoint/ui-letters`, `checkpoint/ui-numbers`).
 - [ ] Real home page and mode selector in `app/page.tsx` (`checkpoint/ui-home`).
 
