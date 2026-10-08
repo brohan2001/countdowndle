@@ -8,3 +8,4 @@
 | 2026-10-09 | checkpoint/seeded-prng | tsc ✓ lint ✓ test 57 ✓ | mulberry32, cyrb53 hashString, rngFromString, randomInt, non-mutating shuffle; optional rng threaded through letter/number draws. |
 | 2026-10-09 | checkpoint/letters-bag | tsc ✓ lint ✓ test 61 ✓ build ✓ | Finite shuffled vowel/consonant decks in state (LetterDecks), drawn from top; RESET_ROUND/RANDOM_FILL accept optional rng; tile ids are deterministic (tile-N). |
 | 2026-10-09 | checkpoint/letters-trie | tsc ✓ lint ✓ test 71 ✓ | Trie (insert/has/hasPrefix/findWords), getTrie WeakMap cache; verified vs brute force on the real dictionary. |
+| 2026-10-09 | checkpoint/letters-best-word | tsc ✓ lint ✓ test 76 ✓ | analyzeBestWords + RoundResultPanel section (best length, longest set, also-ran list, matched-best). needs-visual-QA |

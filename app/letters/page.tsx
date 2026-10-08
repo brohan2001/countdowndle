@@ -93,6 +93,7 @@ export default function LettersPage() {
       {/* Results overlay / modal panel: state.lastRoundResult is null except during roundOver */}
       <RoundResultPanel
         result={state.lastRoundResult}
+        dictionary={dictionary}
         onNextRound={() => dispatch({ type: "RESET_ROUND" })}
       />
     </main>
