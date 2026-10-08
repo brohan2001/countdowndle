@@ -305,6 +305,20 @@ export function numbersGameReducer(
       return state;
     }
 
+    case "LOAD_PUZZLE": {
+      if (state.phase !== "selecting" || action.drawnNumbers.length !== 6) {
+        return state;
+      }
+      return {
+        ...state,
+        phase: "solving",
+        largeCount: action.largeCount,
+        drawnNumbers: action.drawnNumbers,
+        pool: [...action.drawnNumbers],
+        target: action.target,
+      };
+    }
+
     case "SELECT_OPERAND": {
       if (!canWork(state) || state.inputMode !== "calculator") {
         return state;

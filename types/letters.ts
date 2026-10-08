@@ -62,5 +62,6 @@ export type LettersGameAction =
   | { type: "UPDATE_INPUT"; value: string }
   | { type: "SUBMIT_WORD"; word: string; dictionary: Set<string> }
   | { type: "TIME_EXPIRED" }
+  | { type: "LOAD_BOARD"; board: LetterTile[] } // preset 9-tile board (Daily)
   | { type: "RESET_ROUND"; rng?: Rng }
   | { type: "RANDOM_FILL"; rng?: Rng };
