@@ -248,7 +248,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - [ ] Supabase clients:
   - `@supabase/supabase-js` and `@supabase/ssr`.
   - `lib/supabase/{client,server}.ts` and middleware for session refresh.
-- [ ] Migrations in `supabase/migrations/`:
+- [x] Migrations in `supabase/migrations/`:
   - Tables: `profiles` (display_name, is_anonymous), `matches`, `match_players`, `rounds` (server-held puzzle + solution), `round_submissions`.
   - **RLS on every table**: players read only their own matches, and solutions are readable only after the round ends.
 - [ ] Auth UI:
