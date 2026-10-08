@@ -11,7 +11,7 @@ export function LettersBoard({ board }: LettersBoardProps) {
   const emptyCount = Math.max(0, MAX_BOARD_SIZE - board.length);
 
   return (
-    <div className="flex flex-wrap justify-center gap-2">
+    <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="Letters board">
       {board.map((tile, index) => (
         <Tile key={tile.id} index={index}>
           {tile.letter}

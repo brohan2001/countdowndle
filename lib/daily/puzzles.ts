@@ -4,11 +4,10 @@ import { ConundrumPuzzle } from "@/types/conundrum";
 import { createDecks, drawFromDecks, pickRandomFillCounts } from "../letters/lettersPool";
 import { drawNumbers, pickTarget } from "../numbers/numberPool";
 import { makePuzzle, pickSolution } from "../conundrum/puzzle";
-import { randomInt, shuffle } from "../shared/random";
+import { Rng, randomInt, shuffle } from "../shared/random";
 import { DailyGameId, dailyRng } from "./seed";
 
-export function dailyLettersBoard(dayKey: string): LetterTile[] {
-  const rng = dailyRng(dayKey, "letters");
+export function lettersBoardFromRng(rng: Rng): LetterTile[] {
   let decks = createDecks(rng);
   const { vowelsToAdd, consonantsToAdd } = pickRandomFillCounts(0, 0, MAX_BOARD_SIZE, rng);
 
@@ -28,20 +27,27 @@ export function dailyLettersBoard(dayKey: string): LetterTile[] {
   return shuffle(tiles, rng).map((tile, index) => ({ ...tile, id: `tile-${index}` }));
 }
 
+export function dailyLettersBoard(dayKey: string): LetterTile[] {
+  return lettersBoardFromRng(dailyRng(dayKey, "letters"));
+}
+
 export interface DailyNumbersPuzzle {
   largeCount: LargeCount;
   drawnNumbers: NumberTile[];
   target: number;
 }
 
-export function dailyNumbersPuzzle(dayKey: string): DailyNumbersPuzzle {
-  const rng = dailyRng(dayKey, "numbers");
+export function numbersPuzzleFromRng(rng: Rng): DailyNumbersPuzzle {
   const largeCount = randomInt(0, 4, rng) as LargeCount;
   const drawnNumbers = drawNumbers(largeCount, rng).map((tile, index) => ({
     ...tile,
     id: `daily-${index}`, // stable ids so the same day always yields equal state
   }));
   return { largeCount, drawnNumbers, target: pickTarget(rng) };
+}
+
+export function dailyNumbersPuzzle(dayKey: string): DailyNumbersPuzzle {
+  return numbersPuzzleFromRng(dailyRng(dayKey, "numbers"));
 }
 
 export function dailyConundrumPuzzle(
