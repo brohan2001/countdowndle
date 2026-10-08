@@ -1,5 +1,5 @@
 import { LargeCount, NumberTile } from "@/types/numbers";
-import { shuffle } from "../shared/random";
+import { Rng, randomInt, shuffle } from "../shared/random";
 
 const LARGE_VALUES = [25, 50, 75, 100];
 
@@ -18,8 +18,11 @@ const SMALL_COUNTS: Record<number, number> = {
 
 const NUMBERS_PER_ROUND = 6;
 
-export function drawLargeNumbers(count: LargeCount): NumberTile[] {
-  const largeNumbers = shuffle([...LARGE_VALUES]).slice(0, count);
+export function drawLargeNumbers(
+  count: LargeCount,
+  rng: Rng = Math.random,
+): NumberTile[] {
+  const largeNumbers = shuffle(LARGE_VALUES, rng).slice(0, count);
   return largeNumbers.map((largeNumber) => ({
     id: crypto.randomUUID(),
     value: largeNumber,
@@ -27,13 +30,16 @@ export function drawLargeNumbers(count: LargeCount): NumberTile[] {
   }));
 }
 
-export function drawSmallNumber(pool: Record<number, number>): {
+export function drawSmallNumber(
+  pool: Record<number, number>,
+  rng: Rng = Math.random,
+): {
   tile: NumberTile;
   pool: Record<number, number>;
 } {
   const smallNumbers = Object.keys(pool).map(Number);
   const random =
-    Math.random() * Object.values(pool).reduce((sum, count) => sum + count, 0);
+    rng() * Object.values(pool).reduce((sum, count) => sum + count, 0);
   let cumulative = 0;
 
   for (const smallNumber of smallNumbers) {
@@ -57,17 +63,20 @@ export function drawSmallNumber(pool: Record<number, number>): {
   throw new Error("Failed to draw a number");
 }
 
-export function drawNumbers(largeCount: LargeCount): NumberTile[] {
+export function drawNumbers(
+  largeCount: LargeCount,
+  rng: Rng = Math.random,
+): NumberTile[] {
   let pool = SMALL_COUNTS;
-  const tiles = drawLargeNumbers(largeCount);
+  const tiles = drawLargeNumbers(largeCount, rng);
   for (let i = 0; i < NUMBERS_PER_ROUND - largeCount; i++) {
-    const { tile, pool: newPool } = drawSmallNumber(pool);
+    const { tile, pool: newPool } = drawSmallNumber(pool, rng);
     pool = newPool;
     tiles.push(tile);
   }
   return tiles;
 }
 
-export function pickTarget(): number {
-  return Math.floor(Math.random() * (999 - 100 + 1) + 100);
+export function pickTarget(rng: Rng = Math.random): number {
+  return randomInt(100, 999, rng);
 }
