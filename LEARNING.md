@@ -686,3 +686,35 @@ Full detail for each of the four is in `CLAUDE.md`'s "Next Planned Work" section
 ✅ **Orthogonal State Axes:** `NumbersInputMode` (how) and `NumbersPlayMode` (when/how-scored) as two independent enums rather than one combined one, because every combination of the two is meaningful.  
 
 Next session: **UI normalization pass (Claude-led per the new exception in `CLAUDE.md` Mentorship Rule 4), then Conundrum, then backend + both solvers together.** See `CLAUDE.md`'s "Next Planned Work" section and this file's "What's Next: Conundrum, the UI pass, and the backend/solvers" section above for the full plan.
+
+---
+
+# Orchestrated build log (2026-10-09 →)
+
+Short "what was built and why", per milestone. Full per-checkpoint detail is in `docs/RUNLOG.md`.
+
+## M0–M1: tests first, then algorithms
+- **Characterization tests before any refactor** lock what the game already did, so later changes (finite bag, seeded RNG, timed prove) can't silently change behaviour.
+- **Seedable randomness** (`Rng = () => number`, mulberry32, cyrb53): everything random takes an optional `rng`. Same seed → same puzzle, which is what makes Daily work, and it makes tests deterministic. `shuffle` stopped mutating its input.
+- **Finite letter bag**: two shuffled decks drawn from the top, so a Q can't appear twice. Decks live in reducer state; drawing is slicing, never mutation.
+- **Trie**: a `Set` answers "is this a word?", but only a prefix tree lets the search abandon a branch when no word can continue. `findWords` walks the tree and only descends into letters still available (decrement on the way down, restore on the way back).
+- **Numbers solver**: exhaustive DFS over unordered pairs, reusing `applyOperator` so it can never find a move a player couldn't make. Memoizing on the sorted tile values collapses equivalent states. Worst case measured at <30 ms, so no Web Worker was needed.
+- **Timed prove**: ticks stay out of the reducer. The 5 s per-tap clock is a component remounted (via `key`) on every tap; the reducer only learns about the final `PROVE_TIMEOUT`.
+
+## M2: the Studio Desk skin
+Design tokens live once in `@theme`; primitives (`Button`, `Tile`, `Panel`, `TabSelector`, `DialTimer`) consume them. Games were ported onto primitives instead of each styling its own buttons.
+
+## M3–M4: Conundrum and Daily
+- Answers are generated offline: group 9-letter words by sorted-letter signature, keep signatures with exactly one word, drop inflections whose base word is in the dictionary. (The wordlist is Collins-sized, so some answers are obscure; there's no frequency data.)
+- Daily puzzles come from `rngFromString("countdown:<local-date>:<game>")`. Each game has its own stream so changing one game's draws can't shift another's puzzle. Streaks are **derived** from history, never stored (nothing to drift out of sync).
+
+## M6–M7: backend and duels — the teaching notes
+- **RLS (row level security)** means the database, not your app code, decides who can read which rows. Rule of thumb used here: browsers get *read-only* access to rows of matches they belong to, and *no* write policies at all. Only the server (service role, which bypasses RLS) writes. A hacked or curious client then has nothing to attack.
+- **Row-level means secrets need their own table.** RLS can't hide a column, so solutions live in `round_secrets`, whose only policy is "member AND round is revealed". Same trick for what each player has submitted mid-round: the readable match state is *redacted* (declarations, letters points), and the truth sits in `round_submissions`, private to its author until reveal.
+- **Grants are separate from RLS.** A new Supabase version doesn't auto-grant table privileges to API roles. The service role bypasses RLS but not `GRANT`s, so it failed with "permission denied" until grants were added. The pgTAP suite missed it because it runs as `postgres`; the integration test caught it. Lesson: test with the real roles.
+- **Why the server is authoritative.** Anything the client decides, a cheater decides. So puzzles are generated server-side with a crypto RNG, words and proofs are re-validated server-side, and the client only renders. The client never receives a conundrum solution before reveal.
+- **Unique constraints are atomic locks.** "First buzz wins" is `unique (round_id, attempt)`: two simultaneous inserts, the database lets exactly one through. No check-then-insert race, no locking code.
+- **Optimistic concurrency.** `matches.version` + `update … where version = $old`. If another request got in first the update matches zero rows and we retry on fresh state.
+- **Clock skew.** A client's clock can be wrong by seconds, so deadlines are stored server-side and the client estimates `server − client` once (`/api/time`, keeping the lowest-RTT sample). Remaining time is *derived* from the clock every tick rather than decremented, so a throttled background tab can't drift. When a local clock hits zero the client asks the server to `advance`; the server only acts if the deadline has genuinely passed, and a 2 s grace absorbs jitter.
+- **Postgres is the source of truth; Realtime is a doorbell.** On every change event (and on every (re)subscribe) the client re-reads its allowed rows. A missed event or a reconnect therefore can't leave the UI stale. Out-of-order responses are handled with a sequence guard so an older read never overwrites a newer one.
+- **Bugs this process caught** (worth remembering): a mid-round points leak through the readable state; the missing service-role grants; stale overlapping snapshots; a proof inferred from `points > 0` (a proven far-off declaration is worth 0).
