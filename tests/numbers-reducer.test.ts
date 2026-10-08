@@ -144,3 +144,64 @@ describe("declare mode (current behaviour)", () => {
     expect(numbersGameReducer(p, { type: "TIME_EXPIRED" })).toBe(p);
   });
 });
+
+describe("declare mode: timed prove", () => {
+  const declare = (o: Partial<NumbersGameState> = {}) => started({ playMode: "declare", ...o });
+
+  it("declaration can be updated repeatedly while the clock runs (latest wins)", () => {
+    let s = declare();
+    s = numbersGameReducer(s, { type: "SET_DECLARED_VALUE", value: 300 });
+    s = numbersGameReducer(s, { type: "SET_DECLARED_VALUE", value: 518 });
+    expect(s.declaredValue).toBe(518);
+    s = numbersGameReducer(s, { type: "SET_DECLARED_VALUE", value: null });
+    expect(s.declaredValue).toBeNull();
+  });
+
+  it("expiry with a declaration enters proving, forcing calculator mode", () => {
+    const s = numbersGameReducer(declare({ inputMode: "freeText", declaredValue: 104 }), { type: "TIME_EXPIRED" });
+    expect(s.phase).toBe("proving");
+    expect(s.inputMode).toBe("calculator");
+    expect(canWork(s)).toBe(true);
+  });
+
+  it("expiry without a declaration ends the round as invalid-empty", () => {
+    const s = numbersGameReducer(declare(), { type: "TIME_EXPIRED" });
+    expect(s.phase).toBe("roundOver");
+    expect(s.result?.validation.status).toBe("invalid-empty");
+    expect(s.result?.pointsAwarded).toBe(0);
+  });
+
+  it("a proving step that reaches the declared value ends the round and scores", () => {
+    let s = numbersGameReducer(declare({ declaredValue: 520 }), { type: "TIME_EXPIRED" });
+    s = step(s, "a", "+", "b"); // 104, not yet
+    expect(s.phase).toBe("proving");
+    const t = s.pool.find((x) => x.value === 104)!;
+    s = step(s, t.id, "*", "c"); // 520
+    expect(s.phase).toBe("roundOver");
+    expect(s.result?.validation.status).toBe("exact");
+    expect(s.result?.pointsAwarded).toBe(10);
+  });
+
+  it("declaring a drawn tile's value is not proven by an unrelated step", () => {
+    let s = numbersGameReducer(declare({ declaredValue: 100 }), { type: "TIME_EXPIRED" });
+    s = step(s, "b", "+", "c"); // 9; the 100 tile is untouched
+    expect(s.phase).toBe("proving");
+    s = numbersGameReducer(s, { type: "PROVE_TIMEOUT" });
+    expect(s.result?.validation.status).toBe("invalid-unproven");
+  });
+
+  it("PROVE_TIMEOUT while proving scores invalid-unproven / 0", () => {
+    let s = numbersGameReducer(declare({ declaredValue: 520 }), { type: "TIME_EXPIRED" });
+    s = numbersGameReducer(s, { type: "PROVE_TIMEOUT" });
+    expect(s.phase).toBe("roundOver");
+    expect(s.result?.validation.status).toBe("invalid-unproven");
+    expect(s.result?.pointsAwarded).toBe(0);
+  });
+
+  it("PROVE_TIMEOUT is ignored outside proving", () => {
+    const solving = declare({ declaredValue: 5 });
+    expect(numbersGameReducer(solving, { type: "PROVE_TIMEOUT" })).toBe(solving);
+    const over = numbersGameReducer(numbersGameReducer(declare({ declaredValue: 5 }), { type: "TIME_EXPIRED" }), { type: "PROVE_TIMEOUT" });
+    expect(numbersGameReducer(over, { type: "PROVE_TIMEOUT" })).toBe(over);
+  });
+});

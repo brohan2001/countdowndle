@@ -2,8 +2,8 @@ export type NumbersGamePhase =
   | "selecting" // choosing large number count (0-4), input mode, and play mode
   | "solving" // tiles/target ready; declare mode counts down 30s to a declaration,
   //           untimed mode has no countdown and works like live entry
-  | "proving" // declare mode only: time is up, player shows the working with no
-  //           time pressure, trying to reach the number they declared
+  | "proving" // declare mode only: time is up, player shows the working in the
+  //           calculator, each tap within PROVE_TAP_SECONDS of the last
   | "roundOver"; // timer expired (untimed) or declaration/solution resolved
 
 export type NumbersInputMode = "calculator" | "freeText";
@@ -62,6 +62,10 @@ export interface NumbersValidationResult {
 
 export const ROUND_DURATION_SECONDS = 30;
 
+// Declare mode proof: every tile/operator tap must land within this many
+// seconds of the previous one (each tap resets it). There is no total cap.
+export const PROVE_TAP_SECONDS = 5;
+
 export interface NumbersRoundResult {
   drawnNumbers: NumberTile[];
   target: number;
@@ -114,4 +118,5 @@ export type NumbersGameAction =
   | { type: "LOCK_DECLARATION" }
   | { type: "SUBMIT_ANSWER" }
   | { type: "TIME_EXPIRED" }
+  | { type: "PROVE_TIMEOUT" }
   | { type: "RESET_ROUND" };
