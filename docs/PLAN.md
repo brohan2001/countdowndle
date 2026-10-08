@@ -238,7 +238,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 ### M5: Deploy the static app
 - [ ] Record the dictionary license. **This is a blocker; the user must confirm the source.**
 - [ ] User: create a GitHub remote and a Vercel project, then push.
-- [ ] Claude: add GitHub Actions CI running tsc, lint, vitest and build (`checkpoint/deploy-static`).
+- [x] Claude: add GitHub Actions CI running tsc, lint, vitest and build (`checkpoint/deploy-static`).
 
 ### M6: Backend — Supabase (auth + DB)
 - [ ] **User steps** (outward-facing, so they can't run overnight):
