@@ -170,7 +170,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - It is built lazily from the cached word text after the round ends.
   - Tag: `checkpoint/letters-trie`.
 - [x] **Best-word analysis** in `RoundResultPanel`: the longest word(s), the top N, and whether the player matched the maximum (`checkpoint/letters-best-word`).
-- [ ] **Numbers solver** in `lib/numbers/solver.ts`:
+- [x] **Numbers solver** in `lib/numbers/solver.ts`:
   - DFS over the remaining multiset. At each step it takes an unordered pair and one of `+ − × ÷` via `applyOperator`.
   - Pruning:
     - Return early on an exact hit.
