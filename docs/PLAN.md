@@ -223,8 +223,8 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - [x] **UI:** `app/conundrum/page.tsx` and `components/conundrum/*`, built on the M2 primitives (`checkpoint/conundrum-ui`).
 
 ### M4: Daily mode (local-first)
-- [ ] `lib/daily/seed.ts`: `dailyKey(date)` → local `YYYY-MM-DD`; `dailyRng(key, gameId)`, which gives each game its own stream.
-- [ ] Deterministic daily puzzles:
+- [x] `lib/daily/seed.ts`: `dailyKey(date)` → local `YYYY-MM-DD`; `dailyRng(key, gameId)`, which gives each game its own stream.
+- [x] Deterministic daily puzzles:
   - Letters: a preset board drawn from the seeded bag.
   - Numbers: the large count, tiles and target.
   - Conundrum: an index into `conundrums.json`.
@@ -232,7 +232,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - A versioned localStorage key `countdown:daily:v1` holding the result history.
   - Every read and write is wrapped in try/catch.
   - **Current and best streak are derived from the history**, not stored.
-- [ ] `lib/daily/share.ts`: a spoiler-free emoji grid of score bands only.
+- [x] `lib/daily/share.ts`: a spoiler-free emoji grid of score bands only.
 - [ ] `/daily` route (`checkpoint/daily-seed`, `checkpoint/daily-storage`, `checkpoint/daily-ui`).
 
 ### M5: Deploy the static app
