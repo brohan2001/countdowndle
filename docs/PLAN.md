@@ -258,7 +258,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - Tags: `checkpoint/supabase-auth`, `checkpoint/db-schema`.
 
 ### M7: Real-time 1v1 duels
-- [ ] **Match engine** in `lib/match/`:
+- [x] **Match engine** in `lib/match/`:
   - A pure match reducer with the phases `lobby → round[i] (playing → reveal) → final`.
   - Match scoring that composes the three games' round results.
   - Transport-agnostic, and unit-tested.
