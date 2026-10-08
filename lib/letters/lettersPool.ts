@@ -1,5 +1,6 @@
 // lib/letters/letterPool.ts
 import { LetterBag, LetterType, LetterTile } from "@/types/letters";
+import { Rng, randomInt } from "../shared/random";
 
 // TODO: source real vowel/consonant frequency counts and hardcode them here
 const VOWEL_COUNTS: Record<string, number> = {
@@ -41,6 +42,7 @@ export function createInitialBag(): LetterBag {
 export function drawLetter(
   bag: LetterBag,
   type: LetterType,
+  rng: Rng = Math.random,
 ): { tile: LetterTile; bag: LetterBag } {
   // TODO: weighted-random pick from bag[type], decrement that letter's count,
   // return a new tile + a new (not mutated) LetterBag
@@ -58,7 +60,7 @@ export function drawLetter(
     throw new Error(`No ${type} letters left in the bag`);
   }
 
-  const random = Math.random() * total;
+  const random = rng() * total;
 
   let cumulative = 0;
 
@@ -95,6 +97,7 @@ export function pickRandomFillCounts(
   vowelsSoFar: number,
   consonantsSoFar: number,
   remainingSlots: number,
+  rng: Rng = Math.random,
 ): { vowelsToAdd: number; consonantsToAdd: number } {
   // TODO: compute lowerBound/upperBound as above, pick a random int in that
   // inclusive range for vowelsToAdd, derive consonantsToAdd as the remainder.
@@ -103,8 +106,7 @@ export function pickRandomFillCounts(
   // random-picking logic.)
   const lowerBound = Math.max(0, 3 - vowelsSoFar);
   const upperBound = Math.min(remainingSlots, 5 - vowelsSoFar);
-  const vowelsToAdd =
-    Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
+  const vowelsToAdd = randomInt(lowerBound, upperBound, rng);
   const consonantsToAdd = remainingSlots - vowelsToAdd;
   return { vowelsToAdd, consonantsToAdd };
 }

@@ -154,7 +154,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - [x] Update memory: replace `project_pivot_agent_automation.md` with the resolved decision.
 
 ### M1: Core algorithms (run the "Numbers declare + timed prove" item, at the end of this list, **first**)
-- [ ] **Seeded RNG** in `lib/shared/random.ts`:
+- [x] **Seeded RNG** in `lib/shared/random.ts`:
   - `type Rng = () => number`, `mulberry32(seed)`, `hashString(s): number` (cyrb53).
   - `shuffle(items, rng = Math.random)` becomes non-mutating, returning a copy. Update its callers.
   - Thread an optional `rng` through `drawLetter`, `pickRandomFillCounts`, the `numberPool` draws and `pickTarget`.
