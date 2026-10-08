@@ -233,6 +233,13 @@ grant select on public.matches, public.match_players, public.rounds,
 revoke all on public.profiles from anon;
 grant select on public.profiles to authenticated;
 
+-- The server's service role needs explicit privileges: this Supabase version
+-- does not auto-grant new tables to API roles. It bypasses RLS but not GRANTs.
+grant usage on schema public to service_role;
+grant all on public.profiles, public.matches, public.match_players,
+  public.rounds, public.round_secrets, public.round_submissions,
+  public.buzzes to service_role;
+
 -- Realtime: subscribers receive only rows their RLS lets them select.
 alter publication supabase_realtime add table
   public.matches, public.match_players, public.rounds,
