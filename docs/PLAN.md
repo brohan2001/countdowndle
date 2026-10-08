@@ -233,7 +233,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - Every read and write is wrapped in try/catch.
   - **Current and best streak are derived from the history**, not stored.
 - [x] `lib/daily/share.ts`: a spoiler-free emoji grid of score bands only.
-- [ ] `/daily` route (`checkpoint/daily-seed`, `checkpoint/daily-storage`, `checkpoint/daily-ui`).
+- [x] `/daily` route (`checkpoint/daily-seed`, `checkpoint/daily-storage`, `checkpoint/daily-ui`).
 
 ### M5: Deploy the static app
 - [ ] Record the dictionary license. **This is a blocker; the user must confirm the source.**
