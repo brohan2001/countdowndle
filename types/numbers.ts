@@ -108,6 +108,12 @@ export type NumbersGameAction =
   | { type: "SET_INPUT_MODE"; mode: NumbersInputMode }
   | { type: "SET_PLAY_MODE"; mode: NumbersPlayMode }
   | { type: "START_SOLVING" }
+  | {
+      type: "LOAD_PUZZLE"; // preset tiles + target (Daily)
+      largeCount: LargeCount;
+      drawnNumbers: NumberTile[];
+      target: number;
+    }
   | { type: "SELECT_OPERAND"; tileId: string }
   | { type: "SELECT_OPERATOR"; operator: NumbersOperator }
   | { type: "CONFIRM_STEP" }

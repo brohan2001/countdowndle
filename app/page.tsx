@@ -3,6 +3,11 @@ import { Panel } from "@/components/ui/Panel";
 
 const MODES = [
   {
+    href: "/daily",
+    title: "Daily desk",
+    blurb: "One shared set of puzzles a day. Keep your streak, share your grid.",
+  },
+  {
     href: "/letters",
     title: "Letters",
     blurb: "Nine tiles, thirty seconds. Make the longest word you can.",
@@ -31,7 +36,7 @@ export default function Home() {
         </p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         {MODES.map((mode) => (
           <Link key={mode.href} href={mode.href} className="group">
             <Panel className="h-full transition group-hover:-translate-y-0.5 group-hover:border-brass">

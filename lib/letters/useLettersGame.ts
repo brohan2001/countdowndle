@@ -137,6 +137,12 @@ export function lettersGameReducer(
         history: [...state.history, roundResult],
       };
     }
+    case "LOAD_BOARD": {
+      if (state.phase !== "idle" || action.board.length !== MAX_BOARD_SIZE) {
+        return state;
+      }
+      return { ...state, board: action.board, phase: "solving" };
+    }
     case "RESET_ROUND":
       return {
         ...createInitialState(action.rng),
