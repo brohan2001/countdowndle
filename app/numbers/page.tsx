@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useNumbersGame, canWork } from "@/lib/numbers/useNumbersGame";
-import { Timer } from "@/components/ui/Timer";
+import { DialTimer } from "@/components/ui/DialTimer";
+import { Button } from "@/components/ui/Button";
 import { LargeCountSelector } from "@/components/numbers/LargeCountSelector";
 import { TileRack } from "@/components/numbers/TileRack";
 import { OperatorBar } from "@/components/numbers/OperatorBar";
@@ -38,12 +39,13 @@ export default function NumbersPage() {
     state.pendingOperator !== null;
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col items-center gap-6 p-8">
+    <main className="mx-auto flex w-full max-w-2xl flex-col items-center gap-6 px-4 py-8">
+      <h1 className="font-serif text-3xl font-semibold text-ink">Numbers</h1>
       {/* Only declare mode has a countdown. Untimed mode has no Timer for
           now — a count-up stopwatch is a separate later UI job with its own
           ticking state, not wired through this reducer. */}
       {state.playMode === "declare" && (
-        <Timer
+        <DialTimer
           durationSeconds={ROUND_DURATION_SECONDS}
           isRunning={isDeclaring}
           onExpire={() => dispatch({ type: "TIME_EXPIRED" })}
@@ -51,10 +53,10 @@ export default function NumbersPage() {
       )}
 
       <div className="flex flex-col items-center gap-1">
-        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <span className="text-xs font-bold tracking-[0.14em] text-accent uppercase">
           Target
         </span>
-        <div className="font-mono text-5xl font-black tracking-widest text-gray-900 dark:text-white">
+        <div className="font-serif text-6xl font-bold tracking-widest text-ink">
           {state.target ?? "---"}
         </div>
       </div>
@@ -74,7 +76,7 @@ export default function NumbersPage() {
 
       {isDeclaring && (
         <div className="flex flex-col items-center gap-2">
-          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          <span className="text-xs font-bold tracking-[0.14em] text-accent uppercase">
             Declare the number you can reach
           </span>
           <div className="flex gap-2">
@@ -91,23 +93,22 @@ export default function NumbersPage() {
                 dispatch({ type: "SET_DECLARED_VALUE", value: parsed });
               }}
               placeholder="e.g. 518"
-              className="w-32 rounded-lg border border-gray-300 px-3 py-2 font-mono text-lg dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              aria-label="Declared number"
+              className="w-32 rounded-desk border-[1.5px] border-tile-edge bg-paper px-3 py-2 font-serif text-xl font-semibold text-ink focus:border-brass focus:outline-none"
             />
-            <button
-              type="button"
+            <Button
               disabled={state.declaredValue === null}
               onClick={() => dispatch({ type: "LOCK_DECLARATION" })}
-              className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Lock in
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
       {isProving && (
         <>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          <p className="font-serif text-xl font-semibold text-ink">
             Prove {state.declaredValue}
           </p>
           <ProveClock
@@ -170,19 +171,20 @@ export default function NumbersPage() {
               dispatch({ type: "UPDATE_FREE_TEXT", value: e.target.value })
             }
             placeholder="e.g. (100 + 4) * 5 - 25"
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 font-mono text-lg disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+            aria-label="Your expression"
+            autoComplete="off"
+            spellCheck={false}
+            className="w-full rounded-desk border-[1.5px] border-tile-edge bg-paper px-4 py-2 font-serif text-xl font-semibold text-ink placeholder:font-sans placeholder:text-sm placeholder:font-normal placeholder:text-ink-soft/60 focus:border-brass focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
           />
         </>
       )}
 
-      <button
-        type="button"
+      <Button
         disabled={!isWorking}
         onClick={() => dispatch({ type: "SUBMIT_ANSWER" })}
-        className="rounded-lg bg-blue-600 px-6 py-2.5 font-semibold text-white shadow transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Submit Answer
-      </button>
+        Submit answer
+      </Button>
 
       <NumbersResultPanel
         result={state.result}

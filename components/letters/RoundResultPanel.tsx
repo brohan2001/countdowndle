@@ -6,6 +6,8 @@ import {
   MIN_WORD_LENGTH,
   WordValidationStatus,
 } from "@/types/letters";
+import { Button } from "@/components/ui/Button";
+import { Panel } from "@/components/ui/Panel";
 import { getTrie } from "@/lib/letters/trie";
 import { analyzeBestWords } from "@/lib/letters/bestWords";
 
@@ -59,61 +61,53 @@ export function RoundResultPanel({
 
   if (!result) return null;
 
-  // TODO 1: Resolve status message without switch fall-through
   const message = getValidationMessage(result.validation.status);
   const isValid = result.validation.status === "valid";
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-md dark:border-gray-800 dark:bg-gray-900">
-      {/* TODO 2: display result.submittedWord, or a clean fallback if null */}
+    <Panel className="flex w-full max-w-md flex-col items-center gap-4">
       <div className="text-center">
-        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Submitted Word
+        <span className="text-xs font-bold tracking-[0.14em] text-accent uppercase">
+          Submitted word
         </span>
-        <p className="font-mono text-3xl font-black uppercase tracking-wider text-gray-900 dark:text-white">
+        <p className="font-serif text-3xl font-semibold tracking-wider text-ink uppercase">
           {result.submittedWord ?? "—"}
         </p>
       </div>
 
-      {/* TODO 3: display validation message with status-based styling */}
       <p
-        className={`text-sm font-semibold ${
-          isValid
-            ? "text-emerald-600 dark:text-emerald-400"
-            : "text-rose-600 dark:text-rose-400"
-        }`}
+        className={`text-sm font-bold ${isValid ? "text-forest" : "text-urgent"}`}
       >
         {message}
       </p>
 
-      {/* TODO 4: display pointsAwarded ONLY when word is valid */}
       {isValid && (
-        <div className="rounded-full bg-emerald-100 px-4 py-1 text-sm font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+        <div className="rounded-desk border border-brass bg-dial px-4 py-1 text-sm font-bold text-accent">
           +{result.pointsAwarded}{" "}
           {result.pointsAwarded === 1 ? "point" : "points"}
         </div>
       )}
 
       {analysis && (
-        <div className="w-full border-t border-gray-200 pt-4 text-center dark:border-gray-800">
+        <div className="w-full border-t border-dashed border-tile-edge pt-4 text-center">
           {analysis.bestLength === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-ink-soft">
               No valid word of {MIN_WORD_LENGTH}+ letters on this board.
             </p>
           ) : (
             <>
-              <p className="text-sm font-semibold">
+              <p className="text-sm font-bold text-ink">
                 {analysis.playerMatchedBest === true
                   ? "You found a best-length word!"
                   : `Best possible: ${analysis.bestLength} letters`}
               </p>
-              <p className="mt-1 font-mono text-lg font-bold uppercase tracking-wider">
+              <p className="mt-1 font-serif text-lg font-semibold tracking-wider text-ink uppercase">
                 {analysis.longest.slice(0, 5).join(" · ")}
                 {analysis.longest.length > 5 &&
                   ` +${analysis.longest.length - 5}`}
               </p>
               {analysis.top.length > analysis.longest.length && (
-                <p className="mt-2 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <p className="mt-2 text-xs tracking-wide text-ink-soft uppercase">
                   Also: {analysis.top.slice(analysis.longest.length).join(", ")}
                 </p>
               )}
@@ -122,14 +116,7 @@ export function RoundResultPanel({
         </div>
       )}
 
-      {/* TODO 5: next round trigger */}
-      <button
-        type="button"
-        onClick={onNextRound}
-        className="mt-2 rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white shadow transition hover:bg-blue-700 active:scale-95"
-      >
-        Next Round
-      </button>
-    </div>
+      <Button onClick={onNextRound}>Next round</Button>
+    </Panel>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useCountdown } from "@/lib/shared/useCountdown";
+import { DialFace } from "@/components/ui/DialTimer";
 import { PROVE_TAP_SECONDS } from "@/types/numbers";
 
 export interface ProveClockProps {
@@ -22,17 +23,11 @@ export function ProveClock({ onExpire }: ProveClockProps) {
   }, [start]);
 
   return (
-    <div className="flex flex-col items-center gap-1" aria-live="off">
-      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-        Next tap within
-      </span>
-      <span
-        className={`font-mono text-3xl font-bold ${
-          secondsRemaining <= 2 ? "text-red-500" : "text-gray-900 dark:text-white"
-        }`}
-      >
-        {secondsRemaining}
-      </span>
-    </div>
+    <DialFace
+      seconds={secondsRemaining}
+      urgent={secondsRemaining <= 2}
+      label="next tap"
+      size="sm"
+    />
   );
 }

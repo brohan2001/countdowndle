@@ -1,6 +1,7 @@
 "use client";
 
 import { LetterDecks, LetterType, LetterTile } from "@/types/letters";
+import { Button } from "@/components/ui/Button";
 
 export interface LetterSelectorProps {
   decks: LetterDecks;
@@ -17,43 +18,32 @@ export function LetterSelector({
   onSelect,
   onRandomFill,
 }: LetterSelectorProps) {
-  const vowelTotal = decks.vowel.length;
-  const consonantTotal = decks.consonant.length;
-
   const vowelSoFar = board.filter((t) => t.type === "vowel").length;
   const consonantSoFar = board.filter((t) => t.type === "consonant").length;
-  const vowelDisabled = disabled || vowelTotal === 0 || vowelSoFar >= 5;
+  const vowelDisabled =
+    disabled || decks.vowel.length === 0 || vowelSoFar >= 5;
   const consonantDisabled =
-    disabled || consonantTotal === 0 || consonantSoFar >= 6;
+    disabled || decks.consonant.length === 0 || consonantSoFar >= 6;
 
   return (
-    <div className="flex gap-4">
-      <button
-        type="button"
+    <div className="flex flex-wrap justify-center gap-3">
+      <Button
+        variant="secondary"
         disabled={vowelDisabled}
         onClick={() => onSelect("vowel")}
-        className="rounded-lg bg-amber-500 px-4 py-2 font-semibold text-white shadow transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Vowel {/*({vowelTotal})*/}
-      </button>
-
-      <button
-        type="button"
+        Vowel
+      </Button>
+      <Button
+        variant="secondary"
         disabled={consonantDisabled}
         onClick={() => onSelect("consonant")}
-        className="rounded-lg bg-sky-500 px-4 py-2 font-semibold text-white shadow transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Consonant {/*({consonantTotal})*/}
-      </button>
-
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => onRandomFill()}
-        className="rounded-lg bg-emerald-500 px-4 py-2 font-semibold text-white shadow transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
-      >
+        Consonant
+      </Button>
+      <Button disabled={disabled} onClick={onRandomFill}>
         Random
-      </button>
+      </Button>
     </div>
   );
 }
