@@ -208,19 +208,19 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - [x] Real home page and mode selector in `app/page.tsx` (`checkpoint/ui-home`).
 
 ### M3: Conundrum engine
-- [ ] **Offline generator** `scripts/build-conundrums.ts` (run with `pnpm tsx`):
+- [x] **Offline generator** `scripts/build-conundrums.ts` (run with `pnpm tsx`):
   - Take the 9-letter words and group them by sorted-letter signature.
   - Keep signatures that have exactly one word.
   - Filter out inflections: drop a word if it ends in `s`/`es`/`ed`/`ing` and its stem is in the dictionary.
   - Write `public/dictionary/conundrums.json`.
   - Tag: `checkpoint/conundrum-generator`.
-- [ ] **Scramble:** `shuffle(solution)`, rejected if it equals the solution or is itself a dictionary word.
-- [ ] **Types and reducer:**
+- [x] **Scramble:** `shuffle(solution)`, rejected if it equals the solution or is itself a dictionary word.
+- [x] **Types and reducer:**
   - `ConundrumPhase = 'idle' | 'solving' | 'buzzed' | 'roundOver'`, plus the full `ConundrumGameState` and `ConundrumGameAction`.
   - `BUZZ` captures the time remaining once. Ticks never enter the reducer.
   - Scoring is a flat 10.
   - Tag: `checkpoint/conundrum-reducer`.
-- [ ] **UI:** `app/conundrum/page.tsx` and `components/conundrum/*`, built on the M2 primitives (`checkpoint/conundrum-ui`).
+- [x] **UI:** `app/conundrum/page.tsx` and `components/conundrum/*`, built on the M2 primitives (`checkpoint/conundrum-ui`).
 
 ### M4: Daily mode (local-first)
 - [ ] `lib/daily/seed.ts`: `dailyKey(date)` → local `YYYY-MM-DD`; `dailyRng(key, gameId)`, which gives each game its own stream.

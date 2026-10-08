@@ -12,6 +12,11 @@ const MODES = [
     title: "Numbers",
     blurb: "Six numbers and a target. Reach it, or get as close as you dare.",
   },
+  {
+    href: "/conundrum",
+    title: "Conundrum",
+    blurb: "A nine-letter scramble. Buzz in when you see it.",
+  },
 ];
 
 export default function Home() {
@@ -26,7 +31,7 @@ export default function Home() {
         </p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         {MODES.map((mode) => (
           <Link key={mode.href} href={mode.href} className="group">
             <Panel className="h-full transition group-hover:-translate-y-0.5 group-hover:border-brass">
