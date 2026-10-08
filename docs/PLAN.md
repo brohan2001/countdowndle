@@ -267,7 +267,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - validate submissions (reusing `validateWord`, `expression`/`applyOperator` and the solver);
   - advance the phases.
   - The client never receives a Conundrum solution before reveal, which closes the CLAUDE.md spoiler issue.
-- [ ] **Rooms.**
+- [x] **Rooms.**
   - Create a room to get a 6-char code and a link.
   - Supabase Realtime **presence** shows who's in the lobby.
   - **Broadcast** carries phase changes.
@@ -276,10 +276,10 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - The server stores `round_started_at`.
   - Each client derives its remaining time locally with `useCountdown` seeded from that timestamp. There is no per-tick network or reducer traffic.
   - The server enforces the deadline with a grace window.
-- [ ] **Conundrum buzzer.**
+- [x] **Conundrum buzzer.**
   - A buzz is an insert into `buzzes` under a unique `(round_id)` constraint, so the first insert wins atomically.
   - A wrong answer locks that player out, and the opponent gets the remaining time.
-- [ ] **Letters picker turn and Numbers declare-mode duel:**
+- [x] **Letters picker turn and Numbers declare-mode duel:**
   - Picker turns alternate.
   - In declare mode, both players declare and the closest proves.
 - Tags: `checkpoint/match-engine`, `checkpoint/rooms`, `checkpoint/duel-letters`, `checkpoint/duel-numbers`, `checkpoint/duel-conundrum`.

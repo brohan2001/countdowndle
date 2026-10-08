@@ -106,27 +106,53 @@ function requireMember(state: MatchState, userId: string): void {
   if (!state.players.includes(userId)) fail(403, "Not in this match");
 }
 
-// While numbers declarations are still being made, the persisted (readable)
-// match state hides them from the opponent. The truth lives in the caller's
-// own round_submissions row, which RLS keeps private until reveal.
+// While a round is in play, the persisted (readable) match state hides what
+// each player has committed: numbers declarations, and letters points (which
+// would reveal how good the opponent's word was). The truth lives in
+// round_submissions, which RLS keeps private to its author until reveal, and
+// is merged back in here before the engine runs.
 async function hydrate(deps: ServerDeps, match: LoadedMatch): Promise<MatchState> {
   const round = match.state.round;
-  if (round?.kind !== "numbers" || round.stage !== "declaring") return match.state;
+  if (match.state.phase !== "playing" || round === null) return match.state;
+
+  const needsDeclarations = round.kind === "numbers" && round.stage === "declaring";
+  if (!needsDeclarations && round.kind !== "letters") return match.state;
+
   const row = await loadRound(deps, match.id, match.state.roundIndex);
-  const subs = await deps.admin.from("round_submissions").select("player_id, payload").eq("round_id", row.id);
+  const subs = await deps.admin
+    .from("round_submissions")
+    .select("player_id, payload, points")
+    .eq("round_id", row.id);
   if (subs.error) fail(500, subs.error.message);
-  const declarations: Record<PlayerId, number> = {};
-  for (const s of subs.data ?? []) {
-    const declared = (s.payload as { declared?: unknown }).declared;
-    if (typeof declared === "number") declarations[s.player_id] = declared;
+
+  if (round.kind === "letters") {
+    const points: Record<PlayerId, number> = {};
+    for (const s of subs.data ?? []) points[s.player_id] = s.points as number;
+    return { ...match.state, round: { ...round, points } };
   }
-  return { ...match.state, round: { ...round, declarations } };
+  if (round.kind === "numbers") {
+    const declarations: Record<PlayerId, number> = {};
+    for (const s of subs.data ?? []) {
+      const declared = (s.payload as { declared?: unknown }).declared;
+      if (typeof declared === "number") declarations[s.player_id] = declared;
+    }
+    return { ...match.state, round: { ...round, declarations } };
+  }
+  return match.state;
 }
 
 function redact(state: MatchState): MatchState {
   const round = state.round;
-  if (round?.kind === "numbers" && round.stage === "declaring") {
+  if (state.phase !== "playing" || round === null) return state;
+  if (round.kind === "numbers" && round.stage === "declaring") {
     return { ...state, round: { ...round, declarations: {} } };
+  }
+  if (round.kind === "letters") {
+    // Keep WHO has submitted (so the UI can say "waiting"), hide how well.
+    return {
+      ...state,
+      round: { ...round, points: Object.fromEntries(Object.keys(round.points).map((p) => [p, 0])) },
+    };
   }
   return state;
 }
