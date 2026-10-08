@@ -208,7 +208,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - [x] Real home page and mode selector in `app/page.tsx` (`checkpoint/ui-home`).
 
 ### M3: Conundrum engine
-- [ ] **Offline generator** `scripts/build-conundrums.ts` (run with `pnpm tsx`):
+- [x] **Offline generator** `scripts/build-conundrums.ts` (run with `pnpm tsx`):
   - Take the 9-letter words and group them by sorted-letter signature.
   - Keep signatures that have exactly one word.
   - Filter out inflections: drop a word if it ends in `s`/`es`/`ed`/`ing` and its stem is in the dictionary.
