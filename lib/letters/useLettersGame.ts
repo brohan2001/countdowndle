@@ -16,7 +16,7 @@ import { validateWord } from "./dictionary";
 import { scoreWord } from "./scoring";
 import { shuffle } from "../shared/random";
 
-function createInitialState(): LettersGameState {
+export function createInitialState(): LettersGameState {
   // TODO: build the very first state, phase 'idle', empty board,
   // fresh bag, totalScore 0, empty history
   return {
@@ -31,7 +31,7 @@ function createInitialState(): LettersGameState {
   };
 }
 
-function lettersGameReducer(
+export function lettersGameReducer(
   state: LettersGameState,
   action: LettersGameAction,
 ): LettersGameState {

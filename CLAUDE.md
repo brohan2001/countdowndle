@@ -4,50 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## ⚠️ READ FIRST: ACTIVE BUILD PLAN (2026-10-09). This overrides the sections below where they conflict.
+## Workflow: Claude as lead orchestrator (approved by the user, 2026-10-09)
 
-**Before doing anything else in a new session, read `PLAN.md` at the repo root in full, then work through it.** It is the approved, self-contained execution plan.
+The execution plan is `docs/PLAN.md` (copy of the root `PLAN.md`). Read it at the start of a session, tick its `[ ]` checkboxes as checkpoints land, and log each run in `docs/RUNLOG.md`.
 
-- **Workflow change, approved by the user on 2026-10-09:** the Mentorship Rules below (no game logic from Claude, user runs all commands, TODO scaffolding) are **superseded**. Claude is now the lead orchestrator. It writes the reducers, algorithms and architecture itself, delegates bounded tasks to `agy` CLI workers, and commits at checkpoints. The details are in PLAN.md §3–4. This also resolves "Open question" 5 in the Progress Snapshot.
-- **Where to start:** PLAN.md §5, "First actions". The order is:
-  1. M0 baseline commit, vitest and characterization tests.
-  2. M1, starting with **Numbers declare + per-tap 5 s prove clock**.
-  3. The rest of the WBS, in order.
-- **Track progress in PLAN.md:** tick its `[ ]` checkboxes as checkpoints land, and log each run in `docs/RUNLOG.md`.
-- **Stop and ask the user** at:
-  - the dictionary license;
-  - creating GitHub, Vercel or Supabase accounts and env vars;
-  - any destructive git operation.
-- **Keep from below:** the architecture and state invariants (derived state, local timer ticks, immutable reducers), the Studio Desk UI spec (exact values are in PLAN.md §1b) and the folder conventions.
-
----
-
-## Project Philosophy & Mentorship Approach
-
-This is a **learning-first** project. The user is building a local-first Countdown game clone (British TV show: Letters, Numbers, Conundrum rounds) to learn software engineering, algorithms, frontend development, and eventually backend architecture — writing code themselves, not passively copy-pasting.
-
-**Core Mentorship Rules** (these are non-negotiable directives):
-
-1. **Never generate complete game logic or solutions.** Types/interfaces are fully specified (they're contracts, not logic), but component and logic files are scaffolded with `// TODO` comments for the user to implement. When teaching a concept (e.g., useReducer for phase-gated state machines, Trie for prefix search), explain the _why_ before suggesting any code approach.
-
-2. **Explain before building.** Don't hand over a command or file without explaining its purpose and tradeoffs. For example:
-   - Before `pnpm create next-app`, explain what each flag does and why we chose App Router over Pages Router.
-   - Before a type definition, explain what makes it the right shape for this problem.
-   - Before sketching a component hierarchy, explain what responsibilities live where and why.
-     e
-3. **Review the user's code critically.** When the user writes and pastes back their implementation, review it for:
-   - Bugs and edge cases ("What happens if the board is empty here?")
-   - Performance ("This re-renders on every keystroke — can we fix that?")
-   - Idiomatic practices ("React patterns suggest... instead")
-   - Architecture ("This couples two concerns — could we separate them?")
-   - Do not rubber-stamp it.
-
-4. **Hands-on execution only, with one explicit, user-granted exception.** The user runs setup commands, creates all game-related files, and writes all game _logic_ (reducers, `lib/`, types). I do not run `mkdir`, `pnpm create`, `git commit`, or write logic in any `.tsx`/`.ts` game file. The long-standing exception is this `CLAUDE.md` file itself.
-   - **New exception, agreed 2026-09-26:** after Numbers' calculator + free-text + declare/prove logic was built and play-tested, the user asked me to take over the _UI/visual_ layer directly — writing and editing component markup, Tailwind classes, and `globals.css` myself, across both Letters and Numbers, to standardize the look and move it away from a generic "AI-generated" Tailwind default (see Progress Snapshot). This exception covers **styling and markup only**. Game _logic_ (reducers, `lib/*`, types, scoring, parsers) stays the user's to write; I still explain and review it rather than writing it for them. If scope drifts back toward logic while "doing UI," stop and hand it back.
-
-5. **Teach incrementally.** Start with the simplest case (local state, 30-second timer, letter selection) before tackling advanced topics (useReducer with phase machines, Trie-based dictionary searches, component composition patterns). Encourage the user to ask questions and experiment.
-
-6. **Backend/systems teaching is part of the scope.** When we reach auth, databases, leaderboards, or server-side logic, be explicit about _how production systems actually work_. Recommend learning resources (e.g., articles on password hashing, ACID properties, caching strategies). Don't just gloss over these as "use Supabase and it's fine."
+- **Claude writes** reducers, algorithms, architecture, tests and CLAUDE.md/LEARNING.md. The old Mentorship Rules (no game logic from Claude, user runs all commands, TODO scaffolding) are **superseded**.
+- **Delegation:** bounded, self-contained tasks (primitives, page ports, test files from a given API) go to `agy` workers per the matrix and brief template in PLAN.md §3. Workers never run git. Claude reviews every diff and is the only one who commits or tags.
+- **Gate before any commit:** `pnpm tsc --noEmit`, `pnpm lint`, `pnpm test:run`, plus `pnpm build` at milestone ends or config changes. A red gate is never committed.
+- **Commits:** `checkpoint: <name> — <summary>` with an annotated tag `checkpoint/<name>`. Branches `build/m<N>-<name>`, merged `--no-ff`. Never `reset --hard` or force-push without approval.
+- **Stop and ask the user** at: the dictionary license; creating GitHub/Vercel/Supabase accounts and env vars; any destructive git operation.
+- **Invariants kept:** derived state is never stored, timer ticks stay local (never in reducers), reducers are immutable, no `eval`/`new Function`.
+- **UI:** Studio Desk is site-wide; exact values are in PLAN.md §1b.
+- **Resolved decisions** (finite letter bag, seeded RNG, Conundrum flat 10 pts, Supabase 1v1 with anonymous + accounts, Vercel, Apterous-style timed prove with `PROVE_TAP_SECONDS = 5`): see the decisions table in PLAN.md.
 
 ---
 
@@ -182,7 +150,6 @@ Environment note (2026-10-09): `git` fails on this machine until the user runs `
 
 - **Dictionary wordlist:** The user must source this themselves from a licensed English wordlist (e.g., SCOWL, ENABLE, or public-domain Wiktionary dump). Do not fabricate or hallucinate word lists.
 - **No third-party services yet:** No APIs, no Supabase, no auth. Phase 2 only.
-- **Hands-on execution:** The user creates all game files and runs all commands. I provide guidance/review, not implementations.
 
 ---
 
@@ -222,7 +189,7 @@ This project is tied to a longer-term learning journey. Each session, refer to t
    - **Palette:** cream background `#efe6d3`, paper tiles `#f9f3e4`, tile/card border `#c9b98f`, brass accent and timer rim `#b8944f`, forest-green primary button `#2f4a3c`, ink-brown text `#3c2b1e`, secondary brown `#5a4632`, rust for urgent/final-seconds timer `#a8402a`.
    - **Type:** Fraunces (serif; titles, timer numerals, tile letters, word input) and Karla (sans; UI chrome, buttons, labels). Load via `next/font` in `app/layout.tsx`.
    - **Treatment:** tiles sit at faint alternating hand-placed rotations (about -1.4deg / +1.2deg) with a soft paper shadow; selector buttons look like index-card tabs (rounded top corners only, active tab is paper-colored with a brass top edge); the timer is a round brass-rimmed dial with a small "seconds" label; the topbar has a dashed brass underline; corners are modest (about 5px), not uniformly rounded.
-5. **Open question (2026-10-09):** the user said they are "completely making this project an agent subagent automated LLM project from now." What this means (a workflow change, a product-scope change, or something else) is **not yet clarified**. Next session: ask before changing workflow or scope. Until the user confirms, the Mentorship Rules above still apply.
+5. **RESOLVED (2026-10-09):** the "agent subagent automated LLM project" pivot means the orchestrator workflow at the top of this file; execution plan in `docs/PLAN.md`.
 
 **Full session-by-session detail — every concept taught, every bug found and fixed — lives in `LEARNING.md`.** Read its "Phase 5: Numbers Game" section for the complete Numbers build (all TODO-driven stages, every bug caught in review) before continuing.
 

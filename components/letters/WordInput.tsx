@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, SubmitEvent, useEffect } from "react";
+import { useState, SubmitEvent } from "react";
 
 export interface WordInputProps {
   disabled: boolean; // true whenever phase !== 'solving'
@@ -10,11 +10,13 @@ export interface WordInputProps {
 export function WordInput({ disabled, onSubmit }: WordInputProps) {
   const [value, setValue] = useState("");
 
-  useEffect(() => {
-    if (disabled) {
-      setValue("");
-    }
-  }, [disabled]);
+  // Clear stale text when the round ends (adjust state during render rather
+  // than in an effect, so there is no extra cascading render).
+  const [wasDisabled, setWasDisabled] = useState(disabled);
+  if (disabled !== wasDisabled) {
+    setWasDisabled(disabled);
+    if (disabled) setValue("");
+  }
 
   // TODO 1: handleSubmit(e: FormEvent) —
   //   - e.preventDefault() (forms reload the page on submit by default)

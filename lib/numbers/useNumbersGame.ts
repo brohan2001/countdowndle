@@ -12,7 +12,7 @@ import { drawNumbers, pickTarget } from "./numberPool";
 import { applyOperator } from "./arithmetic";
 import { evaluateExpression } from "./expression";
 
-function createInitialState(): NumbersGameState {
+export function createInitialState(): NumbersGameState {
   return {
     phase: "selecting",
     largeCount: null,
@@ -266,7 +266,7 @@ function buildRoundResult(state: NumbersGameState): NumbersRoundResult {
     : buildFreeTextResult(state);
 }
 
-function numbersGameReducer(
+export function numbersGameReducer(
   state: NumbersGameState,
   action: NumbersGameAction,
 ): NumbersGameState {

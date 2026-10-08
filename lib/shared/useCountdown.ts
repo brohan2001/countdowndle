@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface UseCountdownOptions {
   durationSeconds: number;
@@ -17,7 +17,17 @@ export function useCountdown(options: UseCountdownOptions): UseCountdownResult {
   const [secondsRemaining, setSecondsRemaining] = useState(
     options.durationSeconds,
   );
-  const [isRunning, setIsRunning] = useState(false);
+  const [started, setStarted] = useState(false);
+  // Derived, not stored: running means started and not yet at zero.
+  const isRunning = started && secondsRemaining > 0;
+
+  // Latest onExpire without re-subscribing effects when the caller's
+  // callback identity changes between renders.
+  const onExpireRef = useRef(options.onExpire);
+  const firedRef = useRef(false);
+  useEffect(() => {
+    onExpireRef.current = options.onExpire;
+  });
 
   // 1. Pure interval: only decrements secondsRemaining without side effects
   useEffect(() => {
@@ -34,22 +44,23 @@ export function useCountdown(options: UseCountdownOptions): UseCountdownResult {
 
   // 2. Pure watcher: executes side effect exactly once when crossing to 0
   useEffect(() => {
-    if (isRunning && secondsRemaining === 0) {
-      setIsRunning(false);
-      options.onExpire?.();
+    if (started && secondsRemaining === 0 && !firedRef.current) {
+      firedRef.current = true;
+      onExpireRef.current?.();
     }
-  }, [isRunning, secondsRemaining, options.onExpire]);
+  }, [started, secondsRemaining]);
 
   const start = useCallback(() => {
-    setIsRunning(true);
+    setStarted(true);
   }, []);
 
   const pause = useCallback(() => {
-    setIsRunning(false);
+    setStarted(false);
   }, []);
 
   const reset = useCallback(() => {
-    setIsRunning(false);
+    firedRef.current = false;
+    setStarted(false);
     setSecondsRemaining(options.durationSeconds);
   }, [options.durationSeconds]);
 
