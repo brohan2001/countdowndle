@@ -154,23 +154,23 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - [x] Update memory: replace `project_pivot_agent_automation.md` with the resolved decision.
 
 ### M1: Core algorithms (run the "Numbers declare + timed prove" item, at the end of this list, **first**)
-- [ ] **Seeded RNG** in `lib/shared/random.ts`:
+- [x] **Seeded RNG** in `lib/shared/random.ts`:
   - `type Rng = () => number`, `mulberry32(seed)`, `hashString(s): number` (cyrb53).
   - `shuffle(items, rng = Math.random)` becomes non-mutating, returning a copy. Update its callers.
   - Thread an optional `rng` through `drawLetter`, `pickRandomFillCounts`, the `numberPool` draws and `pickTarget`.
   - Tag: `checkpoint/seeded-prng`.
-- [ ] **Finite letter bag**:
+- [x] **Finite letter bag**:
   - Add a vowel deck and a consonant deck (weighted multisets) to `LettersGameState`.
   - Shuffle them on `NEW_ROUND` using the injected rng.
   - `SELECT_LETTER` and `RANDOM_FILL` draw from the top immutably. No `.push` and no derived counts in state.
   - Tag: `checkpoint/letters-bag`.
-- [ ] **Trie** in `lib/letters/trie.ts`:
+- [x] **Trie** in `lib/letters/trie.ts`:
   - `insert`, `has`, `hasPrefix`.
   - `findWords(counts: Map<string, number>)` is a DFS that only follows letters whose remaining count is above 0.
   - It is built lazily from the cached word text after the round ends.
   - Tag: `checkpoint/letters-trie`.
-- [ ] **Best-word analysis** in `RoundResultPanel`: the longest word(s), the top N, and whether the player matched the maximum (`checkpoint/letters-best-word`).
-- [ ] **Numbers solver** in `lib/numbers/solver.ts`:
+- [x] **Best-word analysis** in `RoundResultPanel`: the longest word(s), the top N, and whether the player matched the maximum (`checkpoint/letters-best-word`).
+- [x] **Numbers solver** in `lib/numbers/solver.ts`:
   - DFS over the remaining multiset. At each step it takes an unordered pair and one of `+ − × ÷` via `applyOperator`.
   - Pruning:
     - Return early on an exact hit.
@@ -180,7 +180,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - It returns `NumbersStep[]` so `StepHistory` can render the solution.
   - It runs at round end. If profiling shows it takes more than 50 ms, it moves to a Web Worker.
   - Tag: `checkpoint/numbers-solver`.
-- [ ] **Numbers declare + timed prove (Apterous-style). This is the first task after M0.**
+- [x] **Numbers declare + timed prove (Apterous-style). This is the first task after M0.**
   - **Reducer (`useNumbersGame.ts`):**
     - `DECLARE` is allowed repeatedly while `solving`; the latest value wins.
     - On `TIME_EXPIRED` with a declaration, the phase goes to `proving` and `inputMode` is forced to `'calculator'` for the proof.

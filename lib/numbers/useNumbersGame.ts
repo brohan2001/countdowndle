@@ -64,7 +64,9 @@ function requireTarget(state: NumbersGameState): number {
 }
 // Shared by LOCK_DECLARATION and TIME_EXPIRED-while-declaring: if nothing
 // was ever declared, the round just ends (same as any empty submission).
-// Otherwise the round moves into the untimed 'proving' phase.
+// Otherwise the round moves into the 'proving' phase, which is calculator-only
+// (a free-text declare-mode player must still prove step by step) and runs on
+// a per-tap clock owned by the UI (PROVE_TIMEOUT).
 function resolveDeclarationPhase(state: NumbersGameState): NumbersGameState {
   if (state.declaredValue === null) {
     return {
@@ -77,6 +79,7 @@ function resolveDeclarationPhase(state: NumbersGameState): NumbersGameState {
   return {
     ...state,
     phase: "proving",
+    inputMode: "calculator",
   };
 }
 
@@ -86,18 +89,9 @@ function isDeclarationProven(state: NumbersGameState): boolean {
     return false;
   }
 
-  if (state.inputMode === "calculator") {
-    const candidates = getCandidateValues(state);
-    return state.steps.length > 0 && candidates.includes(declaredValue);
-  }
-
-  const available = state.drawnNumbers.map((t) => t.value);
-  const evaluation = evaluateExpression(state.freeTextExpression, available);
-  return (
-    evaluation.ok &&
-    evaluation.usedOperator &&
-    evaluation.value === state.declaredValue
-  );
+  // Proof is calculator-only: some confirmed step must have produced the
+  // declared value. (A drawn tile that happens to equal it is not a proof.)
+  return state.steps.some((step) => step.resultTile.value === declaredValue);
 }
 
 function buildCalculatorResult(state: NumbersGameState): NumbersRoundResult {
@@ -397,7 +391,7 @@ export function numbersGameReducer(
           tile.id !== pendingOperand1.id && tile.id !== pendingOperand2.id,
       );
 
-      return {
+      const afterStep: NumbersGameState = {
         ...state,
         pool: [...newPool, newTile],
         steps: [...state.steps, calculatorStep],
@@ -405,6 +399,18 @@ export function numbersGameReducer(
         pendingOperator: null,
         pendingOperand2: null,
       };
+
+      // Declare mode: the moment a step reaches the declared value the proof
+      // is complete, so the round ends without waiting for a submit.
+      if (state.phase === "proving" && isDeclarationProven(afterStep)) {
+        return {
+          ...afterStep,
+          phase: "roundOver",
+          result: buildRoundResult(afterStep),
+        };
+      }
+
+      return afterStep;
     }
 
     case "UNDO_STEP": {
@@ -516,6 +522,19 @@ export function numbersGameReducer(
         return state;
       }
       return resolveDeclarationPhase(state);
+    }
+
+    case "PROVE_TIMEOUT": {
+      // A tap landed too late. Only meaningful while proving; a stale timer
+      // firing after the round already ended is ignored.
+      if (state.phase !== "proving") {
+        return state;
+      }
+      return {
+        ...state,
+        phase: "roundOver",
+        result: buildRoundResult(state),
+      };
     }
 
     case "RESET_ROUND": {
