@@ -214,8 +214,8 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - Filter out inflections: drop a word if it ends in `s`/`es`/`ed`/`ing` and its stem is in the dictionary.
   - Write `public/dictionary/conundrums.json`.
   - Tag: `checkpoint/conundrum-generator`.
-- [ ] **Scramble:** `shuffle(solution)`, rejected if it equals the solution or is itself a dictionary word.
-- [ ] **Types and reducer:**
+- [x] **Scramble:** `shuffle(solution)`, rejected if it equals the solution or is itself a dictionary word.
+- [x] **Types and reducer:**
   - `ConundrumPhase = 'idle' | 'solving' | 'buzzed' | 'roundOver'`, plus the full `ConundrumGameState` and `ConundrumGameAction`.
   - `BUZZ` captures the time remaining once. Ticks never enter the reducer.
   - Scoring is a flat 10.
