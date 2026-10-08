@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useLettersGame } from "@/lib/letters/useLettersGame";
 import { loadDictionary } from "@/lib/letters/dictionary";
 import { ROUND_DURATION_SECONDS } from "@/types/letters";
-import { Timer } from "@/components/ui/Timer";
+import { DialTimer } from "@/components/ui/DialTimer";
 import { ScoreDisplay } from "@/components/ui/ScoreDisplay";
 import { LettersBoard } from "@/components/letters/LettersBoard";
 import { LetterSelector } from "@/components/letters/LetterSelector";
@@ -46,9 +46,10 @@ export default function LettersPage() {
   const canPickLetter = state.phase === "idle" || state.phase === "selecting";
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col items-center gap-6 p-8">
+    <main className="mx-auto flex w-full max-w-2xl flex-col items-center gap-6 px-4 py-8">
+      <h1 className="font-serif text-3xl font-semibold text-ink">Letters</h1>
       {dictionaryError && (
-        <div className="w-full rounded-lg bg-red-100 p-3 text-center text-sm font-semibold text-red-800 dark:bg-red-950 dark:text-red-300">
+        <div className="w-full rounded-desk border border-urgent bg-paper p-3 text-center text-sm font-bold text-urgent">
           {dictionaryError}
         </div>
       )}
@@ -61,7 +62,7 @@ export default function LettersPage() {
       />
 
       {/* 30s Countdown timer */}
-      <Timer
+      <DialTimer
         durationSeconds={ROUND_DURATION_SECONDS}
         isRunning={isSolving}
         onExpire={() => dispatch({ type: "TIME_EXPIRED" })}

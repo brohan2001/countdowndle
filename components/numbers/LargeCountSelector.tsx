@@ -1,8 +1,26 @@
 "use client";
 
 import { LargeCount, NumbersInputMode, NumbersPlayMode } from "@/types/numbers";
+import { Button } from "@/components/ui/Button";
+import { TabSelector } from "@/components/ui/TabSelector";
 
-const LARGE_COUNT_OPTIONS: LargeCount[] = [0, 1, 2, 3, 4];
+const LARGE_COUNT_OPTIONS: { value: LargeCount; label: string }[] = [
+  { value: 0, label: "0" },
+  { value: 1, label: "1" },
+  { value: 2, label: "2" },
+  { value: 3, label: "3" },
+  { value: 4, label: "4" },
+];
+
+const INPUT_MODE_OPTIONS: { value: NumbersInputMode; label: string }[] = [
+  { value: "calculator", label: "Calculator" },
+  { value: "freeText", label: "Free text" },
+];
+
+const PLAY_MODE_OPTIONS: { value: NumbersPlayMode; label: string }[] = [
+  { value: "untimed", label: "Untimed" },
+  { value: "declare", label: "Declare" },
+];
 
 export interface LargeCountSelectorProps {
   selectedLargeCount: LargeCount | null;
@@ -15,14 +33,21 @@ export interface LargeCountSelectorProps {
   onStart: () => void;
 }
 
-const baseButton =
-  "rounded-lg border px-4 py-2 font-medium transition disabled:cursor-not-allowed disabled:opacity-50";
-const inactiveButton =
-  "border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700";
-const activeButton = "border-blue-600 bg-blue-600 text-white";
-
-function toggleClass(isSelected: boolean) {
-  return `${baseButton} ${isSelected ? activeButton : inactiveButton}`;
+function Labelled({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span className="text-xs font-bold tracking-[0.14em] text-accent uppercase">
+        {label}
+      </span>
+      {children}
+    </div>
+  );
 }
 
 export function LargeCountSelector({
@@ -37,92 +62,39 @@ export function LargeCountSelector({
 }: LargeCountSelectorProps) {
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Large numbers
-        </span>
-        <div className="flex gap-2">
-          {LARGE_COUNT_OPTIONS.map((option) => {
-            const isSelected = option === selectedLargeCount;
-            return (
-              <button
-                key={option}
-                type="button"
-                disabled={disabled}
-                aria-pressed={isSelected}
-                onClick={() => onSelectLargeCount(option)}
-                className={toggleClass(isSelected)}
-              >
-                {option}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Input mode
-        </span>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled={disabled}
-            aria-pressed={inputMode === "calculator"}
-            onClick={() => onSelectInputMode("calculator")}
-            className={toggleClass(inputMode === "calculator")}
-          >
-            Calculator
-          </button>
-          {/* Free text is now a real, selectable mode — the hard-coded
-              `disabled` from before is gone; it obeys the same `disabled`
-              prop as every other button here. */}
-          <button
-            type="button"
-            disabled={disabled}
-            aria-pressed={inputMode === "freeText"}
-            onClick={() => onSelectInputMode("freeText")}
-            className={toggleClass(inputMode === "freeText")}
-          >
-            Free text
-          </button>
-        </div>
-      </div>
-
-      <div className="flex flex-col items-center gap-2">
-        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Play mode
-        </span>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled={disabled}
-            aria-pressed={playMode === "untimed"}
-            onClick={() => onSelectPlayMode("untimed")}
-            className={toggleClass(playMode === "untimed")}
-          >
-            Untimed
-          </button>
-          <button
-            type="button"
-            disabled={disabled}
-            aria-pressed={playMode === "declare"}
-            onClick={() => onSelectPlayMode("declare")}
-            className={toggleClass(playMode === "declare")}
-          >
-            Declare
-          </button>
-        </div>
-      </div>
-
-      <button
-        type="button"
+      <Labelled label="Large numbers">
+        <TabSelector
+          label="Large numbers"
+          options={LARGE_COUNT_OPTIONS}
+          value={selectedLargeCount}
+          onChange={onSelectLargeCount}
+          disabled={disabled}
+        />
+      </Labelled>
+      <Labelled label="Input mode">
+        <TabSelector
+          label="Input mode"
+          options={INPUT_MODE_OPTIONS}
+          value={inputMode}
+          onChange={onSelectInputMode}
+          disabled={disabled}
+        />
+      </Labelled>
+      <Labelled label="Play mode">
+        <TabSelector
+          label="Play mode"
+          options={PLAY_MODE_OPTIONS}
+          value={playMode}
+          onChange={onSelectPlayMode}
+          disabled={disabled}
+        />
+      </Labelled>
+      <Button
         disabled={disabled || selectedLargeCount === null}
         onClick={onStart}
-        className="rounded-lg bg-blue-600 px-6 py-2.5 font-semibold text-white shadow transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         Start
-      </button>
+      </Button>
     </div>
   );
 }

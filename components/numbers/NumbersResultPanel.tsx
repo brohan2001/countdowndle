@@ -6,6 +6,8 @@ import {
   NumbersValidationStatus,
   OPERATOR_SYMBOLS,
 } from "@/types/numbers";
+import { Button } from "@/components/ui/Button";
+import { Panel } from "@/components/ui/Panel";
 import { solveNumbers } from "@/lib/numbers/solver";
 
 export interface NumbersResultPanelProps {
@@ -44,62 +46,50 @@ export function NumbersResultPanel({
   const { target, validation, pointsAwarded, playMode, declaredValue } = result;
   const { status, achievedValue, difference } = validation;
 
+  const stat = (label: string, value: string | number) => (
+    <div>
+      <dt className="text-xs font-bold tracking-[0.14em] text-accent uppercase">
+        {label}
+      </dt>
+      <dd className="font-serif text-2xl font-semibold text-ink">{value}</dd>
+    </div>
+  );
+
   return (
-    <div className="flex flex-col items-center gap-4 rounded-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-      <p className="text-lg font-bold text-gray-900 dark:text-white">
+    <Panel className="flex w-full max-w-md flex-col items-center gap-4">
+      <p
+        className={`font-serif text-xl font-semibold ${
+          pointsAwarded > 0 ? "text-forest" : "text-ink"
+        }`}
+      >
         {STATUS_MESSAGES[status]}
       </p>
 
       {playMode === "declare" && declaredValue !== null && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-ink-soft">
           You declared {declaredValue}
           {status === "invalid-unproven" ? " — proof didn't reach it" : ""}
         </p>
       )}
 
-      <dl className="grid grid-cols-2 gap-x-8 gap-y-2 text-center">
-        <div>
-          <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Target
-          </dt>
-          <dd className="font-mono text-lg text-gray-900 dark:text-white">
-            {target}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">
-            {playMode === "declare" ? "Declared" : "You reached"}
-          </dt>
-          <dd className="font-mono text-lg text-gray-900 dark:text-white">
-            {achievedValue === null ? "—" : achievedValue}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Difference
-          </dt>
-          <dd className="font-mono text-lg text-gray-900 dark:text-white">
-            {difference === null ? "—" : difference}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">
-            Points
-          </dt>
-          <dd className="font-mono text-lg text-gray-900 dark:text-white">
-            {pointsAwarded}
-          </dd>
-        </div>
+      <dl className="grid grid-cols-2 gap-x-8 gap-y-3 text-center">
+        {stat("Target", target)}
+        {stat(
+          playMode === "declare" ? "Declared" : "You reached",
+          achievedValue === null ? "—" : achievedValue,
+        )}
+        {stat("Difference", difference === null ? "—" : difference)}
+        {stat("Points", pointsAwarded)}
       </dl>
 
       {best && best.steps.length > 0 && (
-        <div className="w-full border-t border-gray-200 pt-4 text-center dark:border-gray-700">
-          <p className="text-sm font-semibold text-gray-900 dark:text-white">
+        <div className="w-full border-t border-dashed border-tile-edge pt-4 text-center">
+          <p className="text-sm font-bold text-ink">
             {best.difference === 0
               ? "Solvable exactly:"
               : `Closest possible: ${best.value} (off by ${best.difference})`}
           </p>
-          <ol className="mt-1 font-mono text-sm text-gray-700 dark:text-gray-300">
+          <ol className="mt-1 font-serif text-lg font-semibold text-ink">
             {best.steps.map((step) => (
               <li key={step.id}>
                 {step.operand1.value} {OPERATOR_SYMBOLS[step.operator]}{" "}
@@ -110,13 +100,7 @@ export function NumbersResultPanel({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={onNextRound}
-        className="rounded-lg bg-blue-600 px-6 py-2.5 font-semibold text-white shadow transition hover:bg-blue-700"
-      >
-        Next round
-      </button>
-    </div>
+      <Button onClick={onNextRound}>Next round</Button>
+    </Panel>
   );
 }
