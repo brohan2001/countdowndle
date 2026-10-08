@@ -228,7 +228,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - Letters: a preset board drawn from the seeded bag.
   - Numbers: the large count, tiles and target.
   - Conundrum: an index into `conundrums.json`.
-- [ ] `lib/daily/storage.ts`:
+- [x] `lib/daily/storage.ts`:
   - A versioned localStorage key `countdown:daily:v1` holding the result history.
   - Every read and write is wrapped in try/catch.
   - **Current and best streak are derived from the history**, not stored.
