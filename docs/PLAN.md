@@ -180,7 +180,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - It returns `NumbersStep[]` so `StepHistory` can render the solution.
   - It runs at round end. If profiling shows it takes more than 50 ms, it moves to a Web Worker.
   - Tag: `checkpoint/numbers-solver`.
-- [ ] **Numbers declare + timed prove (Apterous-style). This is the first task after M0.**
+- [x] **Numbers declare + timed prove (Apterous-style). This is the first task after M0.**
   - **Reducer (`useNumbersGame.ts`):**
     - `DECLARE` is allowed repeatedly while `solving`; the latest value wins.
     - On `TIME_EXPIRED` with a declaration, the phase goes to `proving` and `inputMode` is forced to `'calculator'` for the proof.
