@@ -169,7 +169,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - `findWords(counts: Map<string, number>)` is a DFS that only follows letters whose remaining count is above 0.
   - It is built lazily from the cached word text after the round ends.
   - Tag: `checkpoint/letters-trie`.
-- [ ] **Best-word analysis** in `RoundResultPanel`: the longest word(s), the top N, and whether the player matched the maximum (`checkpoint/letters-best-word`).
+- [x] **Best-word analysis** in `RoundResultPanel`: the longest word(s), the top N, and whether the player matched the maximum (`checkpoint/letters-best-word`).
 - [ ] **Numbers solver** in `lib/numbers/solver.ts`:
   - DFS over the remaining multiset. At each step it takes an unordered pair and one of `+ − × ÷` via `applyOperator`.
   - Pruning:
