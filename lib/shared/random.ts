@@ -16,6 +16,11 @@ export function mulberry32(seed: number): Rng {
   };
 }
 
+/** Unpredictable Rng for server-held puzzles (Web Crypto, available in Node and browsers). */
+export function cryptoRng(): Rng {
+  return () => crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296;
+}
+
 /** cyrb53 string hash (53 bits), used to turn "2026-10-09:letters" into a seed. */
 export function hashString(input: string, seed = 0): number {
   let h1 = 0xdeadbeef ^ seed;

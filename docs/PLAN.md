@@ -262,7 +262,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - A pure match reducer with the phases `lobby → round[i] (playing → reveal) → final`.
   - Match scoring that composes the three games' round results.
   - Transport-agnostic, and unit-tested.
-- [ ] **Authority on the server.** Next.js route handlers or server actions running with the service role:
+- [x] **Authority on the server.** Next.js route handlers or server actions running with the service role:
   - generate the puzzles from a server seed;
   - validate submissions (reusing `validateWord`, `expression`/`applyOperator` and the solver);
   - advance the phases.
@@ -272,7 +272,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
   - Supabase Realtime **presence** shows who's in the lobby.
   - **Broadcast** carries phase changes.
   - Postgres is the source of truth, so a reconnect re-fetches state.
-- [ ] **Timing.**
+- [x] **Timing.**
   - The server stores `round_started_at`.
   - Each client derives its remaining time locally with `useCountdown` seeded from that timestamp. There is no per-tick network or reducer traffic.
   - The server enforces the deadline with a grace window.
