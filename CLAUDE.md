@@ -120,7 +120,7 @@ pnpm build
 pnpm test
 ```
 
-Environment note (2026-10-09): `git` fails on this machine until the user runs `sudo xcodebuild -license` in their own terminal (unaccepted Xcode license). Claude can't run it (needs sudo).
+Environment note: git works (Xcode license accepted). Tests: `pnpm test:run` (integration tests skip without a local Supabase).
 
 ---
 
@@ -159,59 +159,27 @@ This project is tied to a longer-term learning journey. Each session, refer to t
 
 ---
 
-## Progress Snapshot (updated 2026-10-09)
+## Progress Snapshot (updated 2026-10-09, end of the first orchestrated run)
 
-**Letters Game: COMPLETE — logic, UI, and post-MVP polish, playable end-to-end in the browser.**
+Source of truth for status is `docs/PLAN.md` (ticked checkboxes) and `docs/RUNLOG.md` (per-checkpoint gate results and deviations). `LEARNING.md` has the "what and why" log and the backend teaching notes.
 
-- Logic layer (`lib/letters/lettersPool.ts`, `scoring.ts`, `dictionary.ts`, `useLettersGame.ts`) done and type-check clean.
-- UI layer done and wired: `components/ui/Timer.tsx`, `components/ui/ScoreDisplay.tsx`, `components/letters/{LettersBoard,LetterSelector,WordInput,RoundResultPanel}.tsx`, orchestrated by `app/letters/page.tsx`.
-- Post-MVP additions: letter-count display hidden; real min-vowel/consonant rule enforced as two independent upper-bound caps (`vowels ≤ 5`, `consonants ≤ 6`, proven equivalent given the board always fills to 9); a "Random" fill button (`pickRandomFillCounts` + `RANDOM_FILL` action).
-- Still deferred, confirmed with the user: best-possible-word solver + multi-word list (Trie-based stretch goal), and the Framer Motion tile-reveal animation on `LettersBoard`.
-- **UI currently looks like default/generic Tailwind** (grays, blue buttons, uniform rounded corners, no real typographic hierarchy) — flagged by the user as the first thing to fix in the upcoming UI pass (see "Next Planned Work" below). Nothing about Letters' logic changes; only its markup/styling will.
+**Done and merged to `main` (tags `checkpoint/*`):**
+- M0 baseline + vitest characterization tests; lint errors fixed; CLAUDE.md workflow rewritten.
+- M1 seeded RNG, finite letter bag, Trie + best-word panel, Numbers solver, Apterous-style timed prove (`PROVE_TAP_SECONDS = 5`, `PROVE_TIMEOUT`).
+- M2 Studio Desk tokens/fonts/primitives; Letters, Numbers and home ported (`DialTimer` replaced `Timer`).
+- M3 Conundrum: offline generator (9,324 answers), reducer (flat 10 pts), UI.
+- M4 Daily (`/daily`): seeded puzzles, versioned localStorage, derived streaks, spoiler-free share. `dates.ts`/`share.ts` were delegated to `agy` and reviewed.
+- M5 (partial): CI workflow only.
+- M6/M7: Supabase schema + RLS (pgTAP, mutation-checked), clients, `proxy.ts`, `/account`, authoritative `matchService`, route handlers, `/duel` realtime UI, two-browser E2E (`scripts/e2e-duel.mjs`, `docs/E2E.md`). All verified against a LOCAL Supabase (Docker).
 
-**Numbers Game: logic COMPLETE (calculator mode, free-text mode, and two play modes), UI functional but unstyled-by-design (plain Tailwind, will be redone in the UI pass). Play-tested end-to-end by the user across every mode combination — "everything tested and works."**
+**Blocked on the user (hard stops from PLAN.md):**
+1. **Dictionary license** — `public/dictionary/words.txt` has no recorded source/license (`docs/DICTIONARY.md`). Do not deploy publicly until confirmed.
+2. **GitHub remote + Vercel project** — create, then push (nothing has been pushed).
+3. **Hosted Supabase project** — create it, enable anonymous sign-ins and providers, run the two migrations, set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` and Vercel. Hosted-only behaviour (email confirmation, redirect URLs, realtime config) is unverified.
+4. **Visual QA** — duel screens were reviewed from screenshots; Letters/Numbers/Conundrum/Daily/account pages were only smoke-tested (HTTP 200) plus the duel E2E.
 
-- **Types** (`types/numbers.ts`): `NumbersGamePhase` is `'selecting' | 'solving' | 'proving' | 'roundOver'` (the earlier stray `'idle'` was removed — it was dead, no action ever left it). Two independent axes on top of the base state: `NumbersInputMode` (`'calculator' | 'freeText'` — _how_ you build an answer) and `NumbersPlayMode` (`'declare' | 'untimed'` — _when/how_ the round is timed and scored). `NumbersValidationStatus` has 10 values including `invalid-unproven`. `OPERATOR_SYMBOLS`/`OPERATOR_ORDER`/`ROUND_DURATION_SECONDS` live here too.
-- **`lib/numbers/numberPool.ts`**: draws `largeCount` (0-4, player-chosen) distinct large tiles (25/50/75/100, no duplicates — real tile set only has one each) via `shuffle`, plus `6 - largeCount` small tiles (1-10, two each) via the same weighted-cumulative-sum pick as Letters' `drawLetter`. `pickTarget()` gives 100-999.
-- **`lib/numbers/scoring.ts`**: `evaluateAnswer` (difference → status band) + `scoreResult` (status → 10/7/5/0 points), pure and shared by every mode.
-- **`lib/numbers/arithmetic.ts`**: `applyOperator(a, op, b): number | null` — the single source of truth for Countdown's legality rules (subtraction must stay positive, division must be exact). Shared by the calculator reducer cases _and_ the free-text parser, so the two input modes can never disagree about what's legal.
-- **`lib/numbers/expression.ts`**: a hand-written recursive-descent parser/evaluator for free-text answers (`expression → term → factor` grammar, so `*`/`/` bind tighter than `+`/`-` with no special-cased precedence logic). Deliberately **never uses `eval`/`new Function`** — player input must not run as code, and `eval` would also accept decimals/negatives/unlimited reuse that the real game forbids. Normalizes `× x ÷ −` to `* - /` before tokenizing (the operator buttons show the pretty symbols). Reports `usedOperator` so a bare number (no actual work) can't be scored as an answer. Length-capped by the reducer to prevent a deep-nesting stack-overflow crash.
-- **`lib/numbers/useNumbersGame.ts`**: full reducer. Exports `canWork(state)` — the one shared "can the player currently build a solution" rule (untimed: while `solving`; declare: only while `proving`) — used by both the reducer's own guards and the page's disabled props, so they can't drift apart. `buildRoundResult` branches into `buildCalculatorResult` / `buildFreeTextResult` / `buildDeclareResult` depending on play mode and input mode; a round with zero real work (no confirmed steps, no operator used in free text) always scores `invalid-empty`/0 regardless of mode, kept consistent on purpose.
-- **UI** (`app/numbers/page.tsx` + `components/numbers/{LargeCountSelector,TileRack,OperatorBar,StepHistory,NumbersResultPanel}.tsx`): fully wired and functional, Tailwind-styled just enough to be usable (selected/disabled states visible) — **not yet standardized or "designed"**, see below.
-- **Known, accepted UX gap:** an illegal calculator step (e.g. 3 − 5) silently does nothing — no player-facing explanation yet.
+**Known gaps / deliberate deviations:** per-tap proof clock is client-side (server caps the whole proof at 90 s); duel letters picker turns are nominal; no rate limiting; no abandon/forfeit handling; `agy` workers can't run shell commands headless (allowlist needed if you want them to self-run tests).
 
-**Decisions made 2026-09-26/27, driving the next phase of work:**
+**Later (not in plan):** formats/bots/Goatdown/ratings, leaderboards UI, night-desk dark palette, chat, tournaments, other languages.
 
-1. **Two Numbers play modes are a deliberate, permanent feature**, not a stopgap: `declare` (competitive/1v1-style — 30s to declare a number, then an untimed `proving` phase to show the working; unproven = 0 pts) and `untimed` (Countdowndle-style — no countdown, live entry). Real 1v1 play needs a backend (Phase 2) — only the local flow exists today.
-2. **UI/CSS ownership handed to Claude** (see Mentorship Rule 4's exception above) once logic was done and play-tested. Goals: standardize Letters + Numbers on shared primitives/tokens (`components/ui/`, `globals.css`) instead of each game re-inventing buttons/panels; get away from the default-Tailwind "AI-generated" look (generic grays, blue everything, uniform rounded corners, no hierarchy); take some visual/tactile inspiration from the real show's board and clock **without** copying its logo, exact palette, or other trademarked assets — this project uses its own branding.
-3. **After the UI pass:** backend (auth, DB, leaderboards — Phase 2) and the two solvers (Letters' Trie-based best-word solver, a Numbers solver) get built together, combined rather than sequentially.
-4. **UI direction chosen 2026-10-09: "Studio Desk"** (Direction B of 10 static mockups; published as a private artifact at https://claude.ai/artifact/PDivci7ZqVqbAh2F9Lbnkw, which may become unavailable, so the spec below is the source of truth). **Not implemented yet.**
-   - **Palette:** cream background `#efe6d3`, paper tiles `#f9f3e4`, tile/card border `#c9b98f`, brass accent and timer rim `#b8944f`, forest-green primary button `#2f4a3c`, ink-brown text `#3c2b1e`, secondary brown `#5a4632`, rust for urgent/final-seconds timer `#a8402a`.
-   - **Type:** Fraunces (serif; titles, timer numerals, tile letters, word input) and Karla (sans; UI chrome, buttons, labels). Load via `next/font` in `app/layout.tsx`.
-   - **Treatment:** tiles sit at faint alternating hand-placed rotations (about -1.4deg / +1.2deg) with a soft paper shadow; selector buttons look like index-card tabs (rounded top corners only, active tab is paper-colored with a brass top edge); the timer is a round brass-rimmed dial with a small "seconds" label; the topbar has a dashed brass underline; corners are modest (about 5px), not uniformly rounded.
-5. **RESOLVED (2026-10-09):** the "agent subagent automated LLM project" pivot means the orchestrator workflow at the top of this file; execution plan in `docs/PLAN.md`.
-
-**Full session-by-session detail — every concept taught, every bug found and fixed — lives in `LEARNING.md`.** Read its "Phase 5: Numbers Game" section for the complete Numbers build (all TODO-driven stages, every bug caught in review) before continuing.
-
----
-
-## Next Planned Work (as of 2026-09-27)
-
-In order:
-
-1. **UI normalization pass across Letters + Numbers** (Claude leads, per the new exception in Mentorship Rule 4). The mockup and direction-pick step is **done**: the user chose "Studio Desk" (see decision 4 above for the full spec). Remaining: put the tokens in `globals.css` (Tailwind v4 `@theme`), load Fraunces and Karla with `next/font` in `app/layout.tsx`, build shared primitives (`Button`, `Tile`, `Panel`, a brass-dial `Timer`, etc. in `components/ui/`), then port both games' existing markup onto them. Also replace the leftover default `create-next-app` home page (`app/page.tsx`, which still has a stray Timer test) with the real mode selector. Own branding, show-inspired physicality but not the show's logo/exact palette.
-2. **Conundrum Game** — not started at all yet (types/logic/UI all TODO), likely after the UI pass so it's built directly on the new shared primitives instead of needing a second restyle later.
-3. **Backend + solvers, combined:** Phase 2 backend (auth, DB, leaderboards, daily challenges — see Phase 2 section above) alongside the Letters Trie-based best-word solver and a Numbers solver (exhaustive/near-exhaustive search over the 6 drawn numbers), since the user wants these done together rather than sequentially.
-4. 1v1 competitive play for Numbers' `declare` mode depends on the backend above — not buildable standalone.
-
----
-
-## Getting Started (for future sessions)
-
-If you're a Claude instance coming into this repo mid-project:
-
-1. Read this `CLAUDE.md` first, including the **Progress Snapshot** and **Next Planned Work** sections above — they tell you exactly what's done and what's next.
-2. Read `LEARNING.md` for the full detail behind that snapshot (concepts taught, bugs found, design decisions and why).
-3. Check the plan file at `/Users/rohanbalasubramanian/.claude/plans/role-philosophy-precious-puppy.md` for longer-horizon phase context.
-4. Understand the folder structure above and the state management pattern (useReducer for phase machines, local hooks for performance).
-5. The user will give you a task; explain the "why" before implementing, scaffold TODOs for the user to fill in, and review their code critically.
+**Environment notes:** use `node_modules/.bin/tsx` for scripts (pnpm's build-script approval blocks `pnpm tsx`); `.env.local` holds only local demo Supabase keys (gitignored); Docker Desktop must be running for `supabase start` and the integration tests (they skip automatically without the stack).
