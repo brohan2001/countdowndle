@@ -9,14 +9,14 @@ export interface StepHistoryProps {
 export function StepHistory({ steps }: StepHistoryProps) {
   if (steps.length === 0) {
     return (
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <p className="text-sm text-ink-soft">
         No steps yet — combine two tiles to get started.
       </p>
     );
   }
 
   return (
-    <ol className="flex flex-col gap-1 font-mono text-sm text-gray-700 dark:text-gray-300">
+    <ol className="flex flex-col gap-1 font-serif text-lg font-semibold text-ink">
       {steps.map((step) => (
         <li key={step.id}>
           {step.operand1.value} {OPERATOR_SYMBOLS[step.operator]}{" "}

@@ -27,10 +27,18 @@ export function ScoreDisplay({ totalScore, lastRoundPoints, roundId }: ScoreDisp
   }, [roundId, lastRoundPoints]);
 
   return (
-    <div>
-      {/* TODO: wire the above in */}
-      <div>Score: {totalScore}</div>
-      {showPoints && lastRoundPoints !==null && (<span key = {roundId}> + {lastRoundPoints} </span>)}
+    <div className="flex items-baseline gap-2 font-sans">
+      <span className="text-xs font-bold tracking-[0.14em] text-accent uppercase">
+        Score
+      </span>
+      <span className="font-serif text-3xl font-semibold text-ink">
+        {totalScore}
+      </span>
+      {showPoints && lastRoundPoints !== null && (
+        <span key={roundId} className="font-serif text-xl font-semibold text-forest">
+          +{lastRoundPoints}
+        </span>
+      )}
     </div>
   );
 }
