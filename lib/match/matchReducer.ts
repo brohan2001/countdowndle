@@ -251,6 +251,17 @@ export function matchReducer(state: MatchState, action: MatchAction): MatchState
       return lockedOut.length >= state.players.length ? reveal(next) : next;
     }
 
+    case "RESIGN": {
+      if (
+        (state.phase !== "playing" && state.phase !== "reveal") ||
+        !isPlayer(state, action.player)
+      ) {
+        return state;
+      }
+      const winner = state.players.find((p) => p !== action.player) ?? null;
+      return { ...state, phase: "final", round: null, winner, resignedBy: action.player };
+    }
+
     case "TIME_EXPIRED": {
       const round = state.round;
       if (state.phase !== "playing" || round === null) return state;

@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   computeStreaks,
   emptyHistory,
+  forfeitRemaining,
   isDayComplete,
   parseHistory,
   recordScore,
@@ -80,5 +81,15 @@ describe("computeStreaks", () => {
   it("is derived: same history gives the same answer", () => {
     const h = history("2026-10-08", "2026-10-09");
     expect(computeStreaks(h, "2026-10-09")).toEqual(computeStreaks(h, "2026-10-09"));
+  });
+});
+
+describe("forfeitRemaining", () => {
+  it("scores every unplayed game 0, keeps played scores, and completes the day", () => {
+    const h = recordScore(emptyHistory(), "2026-10-10", "letters", 7);
+    const out = forfeitRemaining(h, "2026-10-10");
+    expect(out.days["2026-10-10"]).toEqual({ letters: 7, numbers: 0, conundrum: 0 });
+    expect(isDayComplete(out.days["2026-10-10"])).toBe(true);
+    expect(forfeitRemaining(out, "2026-10-10")).toBe(out);
   });
 });

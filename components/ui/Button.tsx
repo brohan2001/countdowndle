@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes } from "react";
 
-export type ButtonVariant = "primary" | "secondary";
+export type ButtonVariant = "primary" | "secondary" | "danger";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -10,7 +10,12 @@ const VARIANTS: Record<ButtonVariant, string> = {
   primary: "border-forest bg-forest text-cream hover:brightness-110",
   secondary:
     "border-tile-edge bg-paper text-ink hover:bg-tab",
+  danger: "border-urgent bg-paper text-urgent hover:bg-urgent hover:text-cream",
 };
+
+export function buttonClasses(variant: ButtonVariant, className = ""): string {
+  return `inline-flex items-center justify-center rounded-desk border-[1.5px] px-5 py-2 font-sans text-sm font-bold tracking-wide shadow-paper transition active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 ${VARIANTS[variant]} ${className}`;
+}
 
 export function Button({
   variant = "primary",
@@ -19,10 +24,6 @@ export function Button({
   ...rest
 }: ButtonProps) {
   return (
-    <button
-      type={type}
-      className={`rounded-desk border-[1.5px] px-5 py-2 font-sans text-sm font-bold tracking-wide shadow-paper transition active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 ${VARIANTS[variant]} ${className}`}
-      {...rest}
-    />
+    <button type={type} className={buttonClasses(variant, className)} {...rest} />
   );
 }

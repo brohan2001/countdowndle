@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { playSound } from "@/lib/shared/sound";
 
 export interface TileProps {
   children: ReactNode;
@@ -46,7 +47,10 @@ export function Tile({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={() => {
+        playSound("tile");
+        onClick();
+      }}
       disabled={disabled}
       aria-pressed={selected}
       aria-label={ariaLabel}

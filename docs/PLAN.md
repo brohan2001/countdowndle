@@ -285,6 +285,28 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - Tags: `checkpoint/match-engine`, `checkpoint/rooms`, `checkpoint/duel-letters`, `checkpoint/duel-numbers`, `checkpoint/duel-conundrum`.
 - *Teaching notes go into LEARNING.md*: RLS, why the server is authoritative, clock-skew handling and unique-constraint races.
 
+### M8: UX fixes (run 2, 2026-10-10; user-reported issues)
+- [x] Shared site header (Home/Quit, wordmark, sound toggle, Account) and footer (Dictionary, Contact, Report a bug, GitHub).
+- [x] Leaving mid-round asks first (`lib/shared/leaveGuard.ts`).
+- [x] Solo result panels get a Home button. Daily has "Give up today" (remaining games score 0) and the summary links home.
+- [x] Duel resign: `RESIGN` action, `resignMatch` and `/api/match/[id]/resign`.
+- [x] Prove stall fix: the per-tap clock resets only on new progress (high-water mark, `lib/numbers/proveProgress.ts`), plus `PROVE_TOTAL_SECONDS = 30`. The server cap is now 33 s instead of 90 s.
+- [x] Inline guest play on `/duel` and room links, plus `/account?next=`.
+- [x] Proxy auth refresh times out at 1.5 s, so pages never stall when Supabase is down.
+- [x] tetr.io-style home: long colour bars with Framer Motion and Web Audio sound cues (`lib/shared/sound.ts`).
+- [x] Duel reveal is an aligned grid. New `DuelFinal`: per-round breakdown, count-up, Copy result, Home.
+- Tag: `checkpoint/ux-fixes`.
+
+### M9: Features (run 2)
+- [ ] `/dictionary` checker with provenance (SCOWL en_GB-ise) and a "not official Countdown rules" disclaimer.
+- [ ] `/contact`: GitHub issue links (templates in `.github/ISSUE_TEMPLATE`), mailto, and a feedback form (`feedback` table, insert-only RLS, rate-limited route).
+- [ ] Browser QA pass → `docs/QA.md`.
+
+### M10: Deploy (run 2)
+- [ ] GitHub repo `brohan2001/countdowndle` (public) and push.
+- [ ] Hosted Supabase project: migrations, anonymous sign-ins, redirect URLs.
+- [ ] Vercel project, env vars, production deploy, hosted smoke test plus a duel E2E.
+
 ### Later (not in this plan)
 Apterous extras (format engine + presets: 15/9-rounder, Speed, Unlimited, Attack modes, Top Dog; graded bots via Trie/solver; Letters length-declaration flow; Goatdown variant; Elo ratings + stats page), leaderboards UI, server-synced daily stats, chat, tournaments and events, spectating, other languages, the dark "night desk" palette, and the forum.
 

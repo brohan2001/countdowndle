@@ -5,7 +5,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import {
   ServerDeps, MatchError, createMatch, joinMatch, startMatch, nextRound, submitLetters,
-  declareNumbers, proveNumbers, buzzConundrum, answerConundrum, advance,
+  declareNumbers, proveNumbers, buzzConundrum, answerConundrum, advance, resignMatch,
 } from "@/lib/match/server/matchService";
 import { mulberry32 } from "@/lib/shared/random";
 import { parseWordList } from "@/lib/letters/dictionary";
@@ -228,6 +228,26 @@ run("full duel through the authoritative service (local stack)", () => {
       expect((await phase()).scores).toEqual({ [A]: 0, [B]: 0 });
     } finally {
       offset = 0;
+      await admin.from("matches").delete().eq("id", id);
+    }
+  });
+
+  it("resign: the opponent wins, the unfinished round is revealed, outsiders can't", async () => {
+    if (!reachable) return;
+    const { matchId: id, code } = await createMatch(deps, A);
+    try {
+      await joinMatch(deps, B, code);
+      await expectFail(resignMatch(deps, A, id), 409); // lobby: nothing to resign
+      await startMatch(deps, A, id);
+      await expectFail(resignMatch(deps, C, id), 403);
+      await resignMatch(deps, A, id);
+      const s = (await admin.from("matches").select("state, status").eq("id", id).single()).data!;
+      expect(s.status).toBe("finished");
+      expect(s.state).toMatchObject({ phase: "final", winner: B, resignedBy: A });
+      const r = (await admin.from("rounds").select("status").eq("match_id", id).eq("idx", 0).single()).data!;
+      expect(r.status).toBe("revealed");
+      await expectFail(resignMatch(deps, B, id), 409); // already over
+    } finally {
       await admin.from("matches").delete().eq("id", id);
     }
   });

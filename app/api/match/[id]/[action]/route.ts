@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   advance, answerConundrum, buzzConundrum, declareNumbers, nextRound,
-  proveNumbers, startMatch, submitLetters,
+  proveNumbers, resignMatch, startMatch, submitLetters,
 } from "@/lib/match/server/matchService";
 import { authedDeps, errorResponse, readJson } from "@/lib/match/server/http";
 import type { ProofStep } from "@/lib/numbers/proof";
@@ -25,6 +25,9 @@ export async function POST(
     switch (action) {
       case "start":
         await startMatch(deps, userId, id);
+        return NextResponse.json({ ok: true });
+      case "resign":
+        await resignMatch(deps, userId, id);
         return NextResponse.json({ ok: true });
       case "next":
         await nextRound(deps, userId, id);

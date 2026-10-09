@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useCountdown } from "@/lib/shared/useCountdown";
+import { playSound } from "@/lib/shared/sound";
 
 export const URGENT_SECONDS = 5;
 
@@ -19,6 +20,9 @@ export function DialFace({
   label = "seconds",
   size = "md",
 }: DialFaceProps) {
+  useEffect(() => {
+    if (urgent && seconds > 0) playSound("tick");
+  }, [urgent, seconds]);
   const dims =
     size === "md" ? "h-[92px] w-[92px]" : "h-[64px] w-[64px]";
   const numeral = size === "md" ? "text-4xl" : "text-2xl";
