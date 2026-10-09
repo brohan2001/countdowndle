@@ -157,8 +157,13 @@ export function useDuelMatch(code: string): DuelView {
     measureClockOffset().then((clockOffset) => {
       if (alive) setView((v) => ({ ...v, clockOffset }));
     });
+    // Signing in as a guest right on the room page re-reads (and seats us).
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (alive && (event === "SIGNED_IN" || event === "SIGNED_OUT")) void snapshot();
+    });
     return () => {
       alive = false;
+      sub.subscription.unsubscribe();
     };
   }, [supabase, snapshot]);
 

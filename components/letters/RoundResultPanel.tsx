@@ -7,9 +7,11 @@ import {
   WordValidationStatus,
 } from "@/types/letters";
 import { Button } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Panel } from "@/components/ui/Panel";
 import { getTrie } from "@/lib/letters/trie";
 import { analyzeBestWords } from "@/lib/letters/bestWords";
+import { useResultSound } from "@/lib/shared/useResultSound";
 
 export interface RoundResultPanelProps {
   result: LettersRoundResult | null; // null = round hasn't ended yet, render nothing
@@ -58,6 +60,8 @@ export function RoundResultPanel({
         : null,
     [result, dictionary],
   );
+
+  useResultSound(result ? result.validation.status === "valid" : null);
 
   if (!result) return null;
 
@@ -116,7 +120,10 @@ export function RoundResultPanel({
         </div>
       )}
 
-      <Button onClick={onNextRound}>Next round</Button>
+      <div className="flex gap-3">
+        <ButtonLink href="/" variant="secondary">Home</ButtonLink>
+        <Button onClick={onNextRound}>Next round</Button>
+      </div>
     </Panel>
   );
 }

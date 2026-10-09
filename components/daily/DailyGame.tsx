@@ -6,6 +6,7 @@ import { toDailyKey } from "@/lib/daily/dates";
 import {
   DAILY_GAMES,
   computeStreaks,
+  forfeitRemaining,
   recordScore,
 } from "@/lib/daily/storage";
 import {
@@ -20,6 +21,8 @@ import { DailyLettersStage } from "./DailyLettersStage";
 import { DailyNumbersStage } from "./DailyNumbersStage";
 import { DailyConundrumStage } from "./DailyConundrumStage";
 import { DailySummary } from "./DailySummary";
+import { Button } from "@/components/ui/Button";
+import { useLeaveGuard } from "@/lib/shared/leaveGuard";
 
 const TITLES: Record<GameId, string> = {
   letters: "Letters",
@@ -77,6 +80,12 @@ export function DailyGame() {
     [dayKey, game],
   );
   const onContinue = useCallback(() => setStageIndex((i) => i + 1), []);
+  useLeaveGuard(game !== undefined, "Leave the Daily Countdown? This game won’t be saved.");
+  const [confirmingGiveUp, setConfirmingGiveUp] = useState(false);
+  const giveUp = () => {
+    updateHistory((h) => forfeitRemaining(h, dayKey));
+    setStageIndex(DAILY_GAMES.length);
+  };
 
   if (error) {
     return <p className="text-center font-bold text-urgent">{error}</p>;
@@ -112,6 +121,25 @@ export function DailyGame() {
       {game === "letters" && <DailyLettersStage key={game} {...props} />}
       {game === "numbers" && <DailyNumbersStage key={game} {...props} />}
       {game === "conundrum" && <DailyConundrumStage key={game} {...props} />}
+      {confirmingGiveUp ? (
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <span className="text-sm font-bold text-ink">
+            Give up? The rest of today scores 0.
+          </span>
+          <Button variant="danger" onClick={giveUp}>Give up</Button>
+          <Button variant="secondary" onClick={() => setConfirmingGiveUp(false)}>
+            Keep playing
+          </Button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConfirmingGiveUp(true)}
+          className="text-sm font-bold text-ink-soft underline hover:text-urgent"
+        >
+          Give up today
+        </button>
+      )}
     </div>
   );
 }

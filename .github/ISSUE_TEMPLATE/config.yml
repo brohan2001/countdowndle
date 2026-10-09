@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Send feedback privately
+    url: https://countdowndle.vercel.app/contact
+    about: Use the in-app feedback form or email instead of a public issue.

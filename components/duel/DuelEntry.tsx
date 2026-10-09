@@ -1,19 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createRoom, joinRoom } from "@/lib/match/client/api";
+import { createRoom, joinRoom, type ActionResult } from "@/lib/match/client/api";
+import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { GuestSignIn } from "@/components/auth/GuestSignIn";
 import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
 
-export function DuelEntry() {
-  const router = useRouter();
-  const [code, setCode] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type RoomAction = () => Promise<ActionResult<{ code?: string; matchId?: string }>>;
 
+export function DuelEntry() {
   if (!isSupabaseConfigured()) {
     return (
       <Panel className="w-full max-w-md text-center">
@@ -22,14 +21,46 @@ export function DuelEntry() {
       </Panel>
     );
   }
+  return <ConfiguredDuelEntry />;
+}
 
-  const go = async (action: () => Promise<{ ok: boolean; status: number; data: { error?: string; code?: string } }>, fallbackCode?: string) => {
+function ConfiguredDuelEntry() {
+  const router = useRouter();
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // undefined = still checking, null = signed out
+  const [playerName, setPlayerName] = useState<string | null | undefined>(undefined);
+  // The room action that was waiting for a guest sign-in, re-run afterwards.
+  const pending = useRef<{ action: RoomAction; fallbackCode?: string } | null>(null);
+  const [askName, setAskName] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    createClient()
+      .auth.getUser()
+      .then(({ data }) => {
+        if (!alive) return;
+        const user = data.user;
+        setPlayerName(user ? ((user.user_metadata?.display_name as string | undefined) || "Guest") : null);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const go = async (action: RoomAction, fallbackCode?: string) => {
     setBusy(true);
     setError(null);
     const res = await action();
     if (!res.ok) {
-      setError(res.status === 401 ? "Sign in first (guests welcome)." : (res.data.error ?? "Something went wrong"));
       setBusy(false);
+      if (res.status === 401) {
+        pending.current = { action, fallbackCode };
+        setAskName(true);
+        return;
+      }
+      setError(res.data.error ?? "Something went wrong");
       return;
     }
     router.push(`/duel/${res.data.code ?? fallbackCode}`);
@@ -37,6 +68,24 @@ export function DuelEntry() {
 
   return (
     <div className="flex w-full max-w-md flex-col gap-6">
+      {(askName || playerName === null) && (
+        <Panel className="flex flex-col items-center gap-3 text-center">
+          <h2 className="font-serif text-2xl font-semibold text-ink">Who&apos;s playing?</h2>
+          <p className="text-sm text-ink-soft">No account needed — pick a name and go.</p>
+          <GuestSignIn
+            onSignedIn={() => {
+              setAskName(false);
+              setPlayerName("Guest");
+              const next = pending.current;
+              pending.current = null;
+              if (next) void go(next.action, next.fallbackCode);
+            }}
+          />
+          <Link href="/account?next=/duel" className="text-sm font-bold text-accent underline">
+            Or sign in to your account
+          </Link>
+        </Panel>
+      )}
       <Panel className="flex flex-col items-center gap-3">
         <h2 className="font-serif text-2xl font-semibold text-ink">Start a room</h2>
         <Button disabled={busy} onClick={() => void go(createRoom)}>Create room</Button>
@@ -64,9 +113,12 @@ export function DuelEntry() {
         </form>
       </Panel>
       {error && <p role="alert" className="text-center text-sm font-bold text-urgent">{error}</p>}
-      <p className="text-center text-sm text-ink-soft">
-        Need a name first? <Link href="/account" className="font-bold text-accent underline">Go to your account</Link>
-      </p>
+      {playerName && (
+        <p className="text-center text-sm text-ink-soft">
+          Playing as <span className="font-bold text-ink">{playerName}</span> ·{" "}
+          <Link href="/account?next=/duel" className="font-bold text-accent underline">Account</Link>
+        </p>
+      )}
     </div>
   );
 }

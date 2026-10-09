@@ -66,6 +66,12 @@ export function recordScore(
   };
 }
 
+// Give up on the rest of today: every game not yet recorded scores 0. The day
+// still counts as played (so the streak survives), just with fewer points.
+export function forfeitRemaining(history: DailyHistory, dayKey: string): DailyHistory {
+  return DAILY_GAMES.reduce((h, game) => recordScore(h, dayKey, game, 0), history);
+}
+
 export function isDayComplete(scores: DailyScores | undefined): boolean {
   return !!scores && DAILY_GAMES.every((game) => scores[game] !== undefined);
 }

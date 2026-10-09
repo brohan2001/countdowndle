@@ -54,6 +54,7 @@ export interface MatchState {
   scores: Record<PlayerId, number>;
   history: RoundOutcome[];
   winner: PlayerId | "draw" | null; // set at 'final'
+  resignedBy?: PlayerId; // set when the match ended by resignation
 }
 
 export type MatchAction =
@@ -67,4 +68,7 @@ export type MatchAction =
   | { type: "NUMBERS_PROOF"; player: PlayerId; proven: boolean }
   | { type: "CONUNDRUM_BUZZ"; player: PlayerId }
   | { type: "CONUNDRUM_ANSWER"; player: PlayerId; correct: boolean }
-  | { type: "TIME_EXPIRED" };
+  | { type: "TIME_EXPIRED" }
+  // Concede: the opponent wins whatever the score. Only once the match has
+  // started and before it is over.
+  | { type: "RESIGN"; player: PlayerId };

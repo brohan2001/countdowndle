@@ -10,6 +10,7 @@ import { ScrambleBoard } from "@/components/conundrum/ScrambleBoard";
 import { BuzzPanel } from "@/components/conundrum/BuzzPanel";
 import { AnswerPanel } from "@/components/conundrum/AnswerPanel";
 import { ConundrumResultPanel } from "@/components/conundrum/ConundrumResultPanel";
+import { useLeaveGuard } from "@/lib/shared/leaveGuard";
 
 interface Assets {
   dictionary: Set<string>;
@@ -29,6 +30,7 @@ async function loadAssets(): Promise<Assets> {
 
 export default function ConundrumPage() {
   const [state, dispatch] = useConundrumGame();
+  useLeaveGuard(state.phase === "solving" || state.phase === "buzzed", "Quit this round? It won’t be scored.");
   const [assets, setAssets] = useState<Assets | null>(null);
   const [error, setError] = useState<string | null>(null);
 

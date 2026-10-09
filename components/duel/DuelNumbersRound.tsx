@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { TileRack } from "@/components/numbers/TileRack";
 import { OperatorBar } from "@/components/numbers/OperatorBar";
 import { StepHistory } from "@/components/numbers/StepHistory";
-import { ProveClock } from "@/components/numbers/ProveClock";
+import { ProveClocks } from "@/components/numbers/ProveClock";
 import { Tile } from "@/components/ui/Tile";
 import { DeadlineDial } from "./DeadlineDial";
 import { useRoundActions } from "./useRoundActions";
@@ -103,7 +103,6 @@ function ProvePanel({
   onFinish: (steps: { a: number; op: string; b: number }[]) => void;
 }) {
   const [local, dispatch] = useNumbersGame();
-  const [tapCount, setTapCount] = useState(0);
   const sentRef = useRef(false);
 
   const tiles = useMemo<NumberTile[]>(
@@ -134,47 +133,29 @@ function ProvePanel({
 
   const proving = local.phase === "proving";
   const isWorking = canWork(local);
-  const tap = () => {
-    if (proving) setTapCount((c) => c + 1);
-  };
   const canConfirm =
     isWorking && local.pendingOperand1 !== null && local.pendingOperand2 !== null && local.pendingOperator !== null;
 
   return (
     <div className="flex flex-col items-center gap-4">
       <p className="font-serif text-xl font-semibold text-ink">Prove {declared}</p>
-      {proving && <ProveClock key={tapCount} onExpire={() => dispatch({ type: "PROVE_TIMEOUT" })} />}
+      {proving && <ProveClocks state={local} onExpire={() => dispatch({ type: "PROVE_TIMEOUT" })} />}
       <TileRack
         tiles={local.pool}
         pendingOperand1={local.pendingOperand1}
         pendingOperand2={local.pendingOperand2}
         disabled={!isWorking}
-        onSelectTile={(tileId) => {
-          tap();
-          dispatch({ type: "SELECT_OPERAND", tileId });
-        }}
+        onSelectTile={(tileId) => dispatch({ type: "SELECT_OPERAND", tileId })}
       />
       <OperatorBar
         pendingOperator={local.pendingOperator}
         canConfirm={canConfirm}
         canUndo={local.steps.length > 0}
         disabled={!isWorking}
-        onSelectOperator={(operator) => {
-          tap();
-          dispatch({ type: "SELECT_OPERATOR", operator });
-        }}
-        onConfirm={() => {
-          tap();
-          dispatch({ type: "CONFIRM_STEP" });
-        }}
-        onUndo={() => {
-          tap();
-          dispatch({ type: "UNDO_STEP" });
-        }}
-        onClear={() => {
-          tap();
-          dispatch({ type: "CLEAR_CALCULATOR" });
-        }}
+        onSelectOperator={(operator) => dispatch({ type: "SELECT_OPERATOR", operator })}
+        onConfirm={() => dispatch({ type: "CONFIRM_STEP" })}
+        onUndo={() => dispatch({ type: "UNDO_STEP" })}
+        onClear={() => dispatch({ type: "CLEAR_CALCULATOR" })}
       />
       <StepHistory steps={local.steps} />
       <Button variant="secondary" disabled={!isWorking} onClick={() => dispatch({ type: "SUBMIT_ANSWER" })}>
