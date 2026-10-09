@@ -30,7 +30,7 @@ export function DailySummary({ dayKey, scores, streaks }: DailySummaryProps) {
   return (
     <Panel className="flex w-full max-w-md flex-col items-center gap-4">
       <h2 className="font-serif text-2xl font-semibold text-ink">
-        Today&apos;s desk is done
+        Today&apos;s Daily Countdown is done
       </h2>
       <p className="font-serif text-4xl font-bold text-ink">{total}</p>
       <dl className="grid grid-cols-2 gap-x-8 text-center">

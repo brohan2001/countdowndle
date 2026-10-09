@@ -14,13 +14,13 @@ export function DuelRoom({ code }: { code: string }) {
   const view = useDuelMatch(code);
 
   if (view.status === "unconfigured") {
-    return <Notice title="Online play isn't switched on here" body="Solo games and the daily desk work without it." />;
+    return <Notice title="Online play isn't switched on here" body="Solo games and the Daily Countdown work without it." />;
   }
   if (view.status === "loading") return <p className="text-ink-soft">Finding your room…</p>;
   if (view.status === "needs-auth") {
     return (
       <Notice title="Sign in to play a duel" body="Guests are welcome — pick a name and you're in.">
-        <Link href="/account" className="font-bold text-accent underline">Go to your desk</Link>
+        <Link href="/account" className="font-bold text-accent underline">Go to your account</Link>
       </Notice>
     );
   }

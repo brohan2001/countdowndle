@@ -82,7 +82,7 @@ export function DailyGame() {
     return <p className="text-center font-bold text-urgent">{error}</p>;
   }
   if (!assets) {
-    return <p className="text-center text-ink-soft">Setting up today&apos;s desk…</p>;
+    return <p className="text-center text-ink-soft">Setting up today&apos;s puzzles…</p>;
   }
 
   if (!game) {
