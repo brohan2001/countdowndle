@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export interface TileProps {
   children: ReactNode;
-  index?: number; // position on the desk; alternates the hand-placed tilt
+  index?: number; // position on the board; alternates the hand-placed tilt
   selected?: boolean;
   disabled?: boolean;
   empty?: boolean; // an unfilled slot

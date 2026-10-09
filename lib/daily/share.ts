@@ -50,5 +50,5 @@ export function formatShare(dateKey: string, scores: DailyScores): string {
     })
     .join("");
 
-  return `Countdown Desk ${dateKey}\n${emojis}`;
+  return `Daily Countdown ${dateKey}\n${emojis}`;
 }

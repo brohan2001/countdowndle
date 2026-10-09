@@ -40,7 +40,7 @@ export function AuthPanel() {
           Online play isn&apos;t switched on here
         </p>
         <p className="mt-2 text-sm text-ink-soft">
-          Solo games and the daily desk work without an account.
+          Solo games and the Daily Countdown work without an account.
         </p>
       </Panel>
     );
@@ -87,7 +87,7 @@ function ConfiguredAuthPanel() {
   const trimmedName = displayName.trim().slice(0, 24);
 
   if (loading) {
-    return <p className="text-ink-soft">Checking your desk…</p>;
+    return <p className="text-ink-soft">Checking your account…</p>;
   }
 
   // ---- signed in, anonymous: offer to save progress ----
@@ -154,7 +154,7 @@ function ConfiguredAuthPanel() {
             );
           }}
         >
-          <Field label="Display name" maxLength={24} placeholder="Your name at the desk" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+          <Field label="Display name" maxLength={24} placeholder="Your display name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
           <Button type="submit" disabled={busy}>
             Play anonymously
           </Button>

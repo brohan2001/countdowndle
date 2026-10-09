@@ -38,20 +38,20 @@ describe("formatShare", () => {
       numbers: 7,
       conundrum: 0,
     });
-    expect(result).toBe("Countdown Desk 2026-10-09\n🟦🟩⬛");
+    expect(result).toBe("Daily Countdown 2026-10-09\n🟦🟩⬛");
   });
 
   it("shows MISSING_EMOJI for partial scores", () => {
     const result = formatShare("2026-10-09", {
       letters: 18,
     });
-    expect(result).toBe(`Countdown Desk 2026-10-09\n🟦${MISSING_EMOJI}${MISSING_EMOJI}`);
-    expect(result).toBe("Countdown Desk 2026-10-09\n🟦⬜⬜");
+    expect(result).toBe(`Daily Countdown 2026-10-09\n🟦${MISSING_EMOJI}${MISSING_EMOJI}`);
+    expect(result).toBe("Daily Countdown 2026-10-09\n🟦⬜⬜");
   });
 
   it("shows all missing emoji when no games played", () => {
     const result = formatShare("2026-10-09", {});
-    expect(result).toBe("Countdown Desk 2026-10-09\n⬜⬜⬜");
+    expect(result).toBe("Daily Countdown 2026-10-09\n⬜⬜⬜");
   });
 
   it("contains no digits other than the date", () => {

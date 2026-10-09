@@ -18,7 +18,7 @@ export function DuelEntry() {
     return (
       <Panel className="w-full max-w-md text-center">
         <p className="font-serif text-xl font-semibold text-ink">Online play isn&apos;t switched on here</p>
-        <p className="mt-2 text-sm text-ink-soft">Solo games and the daily desk work without it.</p>
+        <p className="mt-2 text-sm text-ink-soft">Solo games and the Daily Countdown work without it.</p>
       </Panel>
     );
   }
@@ -65,7 +65,7 @@ export function DuelEntry() {
       </Panel>
       {error && <p role="alert" className="text-center text-sm font-bold text-urgent">{error}</p>}
       <p className="text-center text-sm text-ink-soft">
-        Need a name first? <Link href="/account" className="font-bold text-accent underline">Go to your desk</Link>
+        Need a name first? <Link href="/account" className="font-bold text-accent underline">Go to your account</Link>
       </p>
     </div>
   );

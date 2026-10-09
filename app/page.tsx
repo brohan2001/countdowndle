@@ -4,7 +4,7 @@ import { Panel } from "@/components/ui/Panel";
 const MODES = [
   {
     href: "/daily",
-    title: "Daily desk",
+    title: "Daily Countdown",
     blurb: "One shared set of puzzles a day. Keep your streak, share your grid.",
   },
   {
@@ -34,10 +34,10 @@ export default function Home() {
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 py-12">
       <header className="border-b border-dashed border-tile-edge pb-4">
         <h1 className="font-serif text-4xl font-semibold text-ink">
-          Countdown Desk
+          Countdowndle
         </h1>
         <p className="mt-1 text-ink-soft">
-          Letters, numbers and conundrums, played at a paper desk.
+          Letters, numbers and conundrums — play daily or head to head.
         </p>
       </header>
 

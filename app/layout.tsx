@@ -15,8 +15,8 @@ const karla = Karla({
 });
 
 export const metadata: Metadata = {
-  title: "Countdown Desk",
-  description: "Letters, numbers and conundrums, played at a paper desk.",
+  title: "Countdowndle",
+  description: "Letters, numbers and conundrums — play daily or head to head.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

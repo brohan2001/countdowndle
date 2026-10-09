@@ -19,6 +19,12 @@ The execution plan is `docs/PLAN.md` (copy of the root `PLAN.md`). Read it at th
 
 ---
 
+## Naming (decided 2026-10-10)
+
+The product is **Countdowndle**; its daily mode is **Daily Countdown**. "Studio Desk" is only the name of the visual design language (tokens such as `rounded-desk`, `--radius-desk`); never use "desk" in user-facing copy.
+
+---
+
 ## Current Project Scope
 
 **Phase 1 (Current): Core Games, Local-Only, No Backend**
