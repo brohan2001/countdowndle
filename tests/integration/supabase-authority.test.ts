@@ -22,7 +22,8 @@ const run = !!url && /127\.0\.0\.1|localhost/.test(url) && anon && service ? des
 
 run("server authority (local stack)", () => {
   const browser = () => createClient(url, anon, { auth: { persistSession: false } });
-  const admin = createClient(url, service ?? "", { auth: { persistSession: false } });
+  // describe.skip still runs this body, so never pass an undefined URL.
+  const admin = createClient(url ?? "http://127.0.0.1:54321", service ?? "unused", { auth: { persistSession: false } });
   let reachable = true;
   beforeAll(async () => {
     try {
