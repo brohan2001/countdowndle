@@ -1,0 +1,28 @@
+name: Feature request
+description: Suggest an idea or feature request
+title: "[Idea] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: what-would-you-like
+    attributes:
+      label: "What would you like?"
+    validations:
+      required: true
+  - type: textarea
+    id: why-would-it-help
+    attributes:
+      label: "Why would it help?"
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Area"
+      options:
+        - "Daily Countdown"
+        - "Duel"
+        - "Letters"
+        - "Numbers"
+        - "Conundrum"
+        - "Dictionary checker"
+        - "Whole site"
+        - "Other"

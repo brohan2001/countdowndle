@@ -62,9 +62,13 @@ export interface NumbersValidationResult {
 
 export const ROUND_DURATION_SECONDS = 30;
 
-// Declare mode proof: every tile/operator tap must land within this many
-// seconds of the previous one (each tap resets it). There is no total cap.
+// Declare mode proof: each new piece of progress (a tile, operator or confirm
+// the proof hasn't reached before) must land within this many seconds of the
+// last one. Toggling, Undo and Clear never reset it.
 export const PROVE_TAP_SECONDS = 5;
+
+// Hard cap on the whole proof, whatever the per-tap clock says.
+export const PROVE_TOTAL_SECONDS = 30;
 
 export interface NumbersRoundResult {
   drawnNumbers: NumberTile[];

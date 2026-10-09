@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Karla } from "next/font/google";
 import "./globals.css";
+import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -25,7 +26,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${fraunces.variable} ${karla.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <SiteHeader />
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 
 const inputClass =
   "w-full rounded-desk border-[1.5px] border-tile-edge bg-paper px-3 py-2 font-sans text-base text-ink placeholder:text-ink-soft/60 focus:border-brass focus:outline-none";
@@ -32,7 +33,20 @@ function ErrorLine({ message }: { message: string | null }) {
   ) : null;
 }
 
-export function AuthPanel() {
+// Only same-site paths, so ?next= can't bounce people to another origin.
+function safeNext(next: string | undefined): string | null {
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+}
+
+function ContinueLink({ next }: { next: string | null }) {
+  return (
+    <ButtonLink href={next ?? "/"} variant="primary">
+      {next?.startsWith("/duel") ? "Continue to the duel →" : "Continue →"}
+    </ButtonLink>
+  );
+}
+
+export function AuthPanel({ next }: { next?: string }) {
   if (!isSupabaseConfigured()) {
     return (
       <Panel className="w-full max-w-md text-center">
@@ -45,10 +59,10 @@ export function AuthPanel() {
       </Panel>
     );
   }
-  return <ConfiguredAuthPanel />;
+  return <ConfiguredAuthPanel next={safeNext(next)} />;
 }
 
-function ConfiguredAuthPanel() {
+function ConfiguredAuthPanel({ next }: { next: string | null }) {
   const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -99,8 +113,15 @@ function ConfiguredAuthPanel() {
           Playing as {name}
         </h2>
         <p className="text-sm text-ink-soft">
-          You&apos;re a guest. Add an email and password to keep your history on
-          any device — you&apos;ll stay the same player.
+          You&apos;re playing as a guest — that&apos;s all you need.
+        </p>
+        <ContinueLink next={next} />
+        <h3 className="mt-2 border-t border-dashed border-tile-edge pt-4 font-serif text-lg font-semibold text-ink">
+          Optional: save your progress
+        </h3>
+        <p className="text-sm text-ink-soft">
+          Add an email and password to keep your history on any device —
+          you&apos;ll stay the same player.
         </p>
         <form
           className="flex flex-col gap-3"
@@ -129,6 +150,7 @@ function ConfiguredAuthPanel() {
       <Panel className="flex w-full max-w-md flex-col gap-4">
         <h2 className="font-serif text-2xl font-semibold text-ink">Signed in</h2>
         <p className="text-sm text-ink-soft">{user.email}</p>
+        <ContinueLink next={next} />
         <Button variant="secondary" disabled={busy} onClick={() => run(() => supabase.auth.signOut())}>
           Sign out
         </Button>

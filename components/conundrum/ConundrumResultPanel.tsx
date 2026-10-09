@@ -2,7 +2,9 @@
 
 import { ConundrumRoundResult } from "@/types/conundrum";
 import { Button } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Panel } from "@/components/ui/Panel";
+import { useResultSound } from "@/lib/shared/useResultSound";
 
 export interface ConundrumResultPanelProps {
   result: ConundrumRoundResult | null;
@@ -13,6 +15,8 @@ export function ConundrumResultPanel({
   result,
   onNextRound,
 }: ConundrumResultPanelProps) {
+  useResultSound(result ? result.isCorrect : null);
+
   if (!result) return null;
 
   const message = result.isCorrect
@@ -47,7 +51,10 @@ export function ConundrumResultPanel({
           {result.pointsAwarded} points
         </p>
       )}
-      <Button onClick={onNextRound}>Next round</Button>
+      <div className="flex gap-3">
+        <ButtonLink href="/" variant="secondary">Home</ButtonLink>
+        <Button onClick={onNextRound}>Next round</Button>
+      </div>
     </Panel>
   );
 }
