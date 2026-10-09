@@ -25,7 +25,8 @@ const service = env.SUPABASE_SERVICE_ROLE_KEY;
 const run = !!url && /127\.0\.0\.1|localhost/.test(url) && anon && service ? describe : describe.skip;
 
 run("full duel through the authoritative service (local stack)", () => {
-  const admin = createClient(url, service ?? "", { auth: { persistSession: false } });
+  // describe.skip still runs this body, so never pass an undefined URL.
+  const admin = createClient(url ?? "http://127.0.0.1:54321", service ?? "unused", { auth: { persistSession: false } });
   const dictionary = parseWordList(readFileSync("public/dictionary/words.txt", "utf8"));
   const solutions: string[] = JSON.parse(readFileSync("public/dictionary/conundrums.json", "utf8"));
   let offset = 0;
