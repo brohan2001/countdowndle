@@ -160,3 +160,22 @@ describe("full match", () => {
     expect(JSON.stringify(s)).toBe(snapshot);
   });
 });
+
+describe("resign", () => {
+  it("ends the match mid-round with the opponent winning, whatever the score", () => {
+    let s = run(started(), { type: "LETTERS_SUBMIT", player: "A", points: 8 }, { type: "LETTERS_SUBMIT", player: "B", points: 0 });
+    s = run(s, { type: "NEXT_ROUND", numbersTarget: 500 }, { type: "RESIGN", player: "B" });
+    expect(s).toMatchObject({ phase: "final", round: null, winner: "A", resignedBy: "B" });
+    expect(s.scores).toEqual({ A: 8, B: 0 });
+    const leader = run(started(), { type: "LETTERS_SUBMIT", player: "A", points: 8 }, { type: "TIME_EXPIRED" }, { type: "RESIGN", player: "A" });
+    expect(leader).toMatchObject({ phase: "final", winner: "B", resignedBy: "A" });
+  });
+  it("is ignored in the lobby, after the end, and from non-players", () => {
+    const l = lobby();
+    expect(reduce(l, { type: "RESIGN", player: "A" })).toBe(l);
+    const s = started();
+    expect(reduce(s, { type: "RESIGN", player: "Z" })).toBe(s);
+    const over = run(s, { type: "RESIGN", player: "A" });
+    expect(reduce(over, { type: "RESIGN", player: "B" })).toBe(over);
+  });
+});

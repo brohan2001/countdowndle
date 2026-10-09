@@ -10,6 +10,7 @@ import { LettersBoard } from "@/components/letters/LettersBoard";
 import { LetterSelector } from "@/components/letters/LetterSelector";
 import { WordInput } from "@/components/letters/WordInput";
 import { RoundResultPanel } from "@/components/letters/RoundResultPanel";
+import { useLeaveGuard } from "@/lib/shared/leaveGuard";
 
 export default function LettersPage() {
   const [state, dispatch] = useLettersGame();
@@ -41,6 +42,7 @@ export default function LettersPage() {
 
   // TODO 2: Derive child boolean flags from state.phase
   const isSolving = state.phase === "solving";
+  useLeaveGuard(state.phase === "selecting" || state.phase === "solving", "Quit this round? It won’t be scored.");
 
   // Players can draw tiles in both 'idle' (1st pick) and 'selecting' (picks 2 through 9)
   const canPickLetter = state.phase === "idle" || state.phase === "selecting";

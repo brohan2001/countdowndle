@@ -7,8 +7,10 @@ import {
   OPERATOR_SYMBOLS,
 } from "@/types/numbers";
 import { Button } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Panel } from "@/components/ui/Panel";
 import { solveNumbers } from "@/lib/numbers/solver";
+import { useResultSound } from "@/lib/shared/useResultSound";
 
 export interface NumbersResultPanelProps {
   result: NumbersRoundResult | null;
@@ -38,6 +40,8 @@ export function NumbersResultPanel({
       result ? solveNumbers(result.drawnNumbers, result.target) : null,
     [result],
   );
+
+  useResultSound(result ? result.pointsAwarded > 0 : null);
 
   if (result === null) {
     return null;
@@ -100,7 +104,10 @@ export function NumbersResultPanel({
         </div>
       )}
 
-      <Button onClick={onNextRound}>Next round</Button>
+      <div className="flex gap-3">
+        <ButtonLink href="/" variant="secondary">Home</ButtonLink>
+        <Button onClick={onNextRound}>Next round</Button>
+      </div>
     </Panel>
   );
 }

@@ -45,7 +45,22 @@ export function DuelReveal({ view }: { view: DuelView }) {
     <Panel className="flex w-full max-w-md flex-col items-center gap-4">
       <h2 className="font-serif text-2xl font-semibold capitalize text-ink">{round.kind} — result</h2>
 
-      <ul className="flex w-full flex-col gap-1">
+      <ul className="grid w-full grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] items-baseline gap-x-4 gap-y-1">
+        <li className="contents" aria-hidden>
+          <span className="text-xs font-bold tracking-[0.14em] text-accent uppercase">
+            Player
+          </span>
+          <span className="text-xs font-bold tracking-[0.14em] text-accent uppercase">
+            {round.kind === "letters"
+              ? "Word"
+              : round.kind === "numbers"
+                ? "Declared"
+                : "Answer"}
+          </span>
+          <span className="text-right text-xs font-bold tracking-[0.14em] text-accent uppercase">
+            Pts
+          </span>
+        </li>
         {players.map((p) => {
           const sub = subs.find((s) => s.player_id === p.id);
           const detail =
@@ -53,16 +68,16 @@ export function DuelReveal({ view }: { view: DuelView }) {
               ? (sub?.payload.word as string) || "—"
               : round.kind === "numbers"
                 ? sub?.payload.declared !== undefined
-                  ? `declared ${sub.payload.declared as number}${sub.payload.proven ? "" : " (unproven)"}`
-                  : "no declaration"
+                  ? `${sub.payload.declared as number} ${sub.payload.proven ? "✓" : "✗ unproven"}`
+                  : "—"
                 : outcome?.points[p.id]
                   ? "solved it"
                   : "—";
           return (
-            <li key={p.id} className="flex items-baseline justify-between gap-4">
-              <span className="font-bold text-ink">{p.name}{p.id === userId ? " (you)" : ""}</span>
+            <li key={p.id} className="contents">
+              <span className="truncate font-bold text-ink">{p.name}{p.id === userId ? " (you)" : ""}</span>
               <span className="font-serif text-lg uppercase text-ink-soft">{detail}</span>
-              <span className="font-serif text-xl font-semibold text-forest">+{outcome?.points[p.id] ?? 0}</span>
+              <span className="text-right font-serif text-xl font-semibold text-forest">+{outcome?.points[p.id] ?? 0}</span>
             </li>
           );
         })}

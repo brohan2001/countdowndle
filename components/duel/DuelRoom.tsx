@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useDuelMatch } from "@/lib/match/client/useDuelMatch";
 import { Button } from "@/components/ui/Button";
@@ -8,10 +9,15 @@ import { DuelLettersRound } from "./DuelLettersRound";
 import { DuelNumbersRound } from "./DuelNumbersRound";
 import { DuelConundrumRound } from "./DuelConundrumRound";
 import { DuelReveal } from "./DuelReveal";
+import { DuelFinal } from "./DuelFinal";
 import { useRoundActions } from "./useRoundActions";
+import { GuestSignIn } from "@/components/auth/GuestSignIn";
+import { useLeaveGuard } from "@/lib/shared/leaveGuard";
 
 export function DuelRoom({ code }: { code: string }) {
   const view = useDuelMatch(code);
+  const inMatch = view.state?.phase === "playing" || view.state?.phase === "reveal";
+  useLeaveGuard(inMatch, "Leave the duel? You can come back with the room link, or resign below.");
 
   if (view.status === "unconfigured") {
     return <Notice title="Online play isn't switched on here" body="Solo games and the Daily Countdown work without it." />;
@@ -19,8 +25,11 @@ export function DuelRoom({ code }: { code: string }) {
   if (view.status === "loading") return <p className="text-ink-soft">Finding your room…</p>;
   if (view.status === "needs-auth") {
     return (
-      <Notice title="Sign in to play a duel" body="Guests are welcome — pick a name and you're in.">
-        <Link href="/account" className="font-bold text-accent underline">Go to your account</Link>
+      <Notice title="Join this duel" body="Pick a name and you're in — no account needed.">
+        <GuestSignIn cta="Join as guest" />
+        <Link href={`/account?next=/duel/${code}`} className="text-sm font-bold text-accent underline">
+          Or sign in to your account
+        </Link>
       </Notice>
     );
   }
@@ -35,13 +44,14 @@ export function DuelRoom({ code }: { code: string }) {
   const state = view.state!;
   return (
     <div className="flex w-full flex-col items-center gap-6">
-      <Scoreboard view={view} />
+      {state.phase !== "final" && <Scoreboard view={view} />}
       {state.phase === "lobby" && <Lobby view={view} code={code} />}
       {state.phase === "playing" && state.round?.kind === "letters" && <DuelLettersRound key={view.round?.id} view={view} />}
       {state.phase === "playing" && state.round?.kind === "numbers" && <DuelNumbersRound key={view.round?.id} view={view} />}
       {state.phase === "playing" && state.round?.kind === "conundrum" && <DuelConundrumRound key={view.round?.id} view={view} />}
       {state.phase === "reveal" && <DuelReveal key={view.round?.id} view={view} />}
-      {state.phase === "final" && <Final view={view} />}
+      {state.phase === "final" && <DuelFinal view={view} />}
+      {(state.phase === "playing" || state.phase === "reveal") && <ResignButton matchId={view.matchId!} />}
     </div>
   );
 }
@@ -100,17 +110,23 @@ function Lobby({ view, code }: { view: ReturnType<typeof useDuelMatch>; code: st
   );
 }
 
-function Final({ view }: { view: ReturnType<typeof useDuelMatch> }) {
-  const state = view.state!;
-  const winner = view.players.find((p) => p.id === state.winner);
-  const headline = state.winner === "draw" ? "A draw!" : state.winner === view.userId ? "You win!" : `${winner?.name ?? "Your opponent"} wins`;
+function ResignButton({ matchId }: { matchId: string }) {
+  const { send, busy, error } = useRoundActions(matchId);
+  const [confirming, setConfirming] = useState(false);
   return (
-    <Panel className="flex w-full max-w-md flex-col items-center gap-3 text-center">
-      <h2 className="font-serif text-3xl font-semibold text-ink">{headline}</h2>
-      <p className="text-sm text-ink-soft">
-        {view.players.map((p) => `${p.name} ${state.scores[p.id] ?? 0}`).join(" — ")}
-      </p>
-      <Link href="/duel" className="font-bold text-accent underline">Play another duel</Link>
-    </Panel>
+    <div className="flex flex-col items-center gap-2">
+      {confirming ? (
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-bold text-ink">Resign this duel?</span>
+          <Button variant="danger" disabled={busy} onClick={() => void send("resign")}>Yes, resign</Button>
+          <Button variant="secondary" onClick={() => setConfirming(false)}>Keep playing</Button>
+        </div>
+      ) : (
+        <button type="button" onClick={() => setConfirming(true)} className="text-sm font-bold text-ink-soft underline hover:text-urgent">
+          Resign
+        </button>
+      )}
+      {error && <p role="alert" className="text-sm font-bold text-urgent">{error}</p>}
+    </div>
   );
 }

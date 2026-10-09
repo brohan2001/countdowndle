@@ -15,14 +15,16 @@ import { lettersBoardFromRng, numbersPuzzleFromRng } from "../../daily/puzzles";
 import { Rng } from "../../shared/random";
 import { createMatchState, matchReducer } from "../matchReducer";
 import { LetterTile } from "@/types/letters";
+import { PROVE_TOTAL_SECONDS } from "@/types/numbers";
 import { MatchAction, MatchState, PlayerId, RoundKind } from "../types";
 
 export const LETTERS_SECONDS = 30;
 export const NUMBERS_DECLARE_SECONDS = 30;
-// Overall cap for the proving stage. The 5s per-tap clock is enforced in the
-// client UI (ticks are not sent over the network); the server bounds the whole
-// proof so a stalled or cheating client can't hold the match open.
-export const PROOF_CAP_SECONDS = 90;
+// Cap for each player's proof. The 5s per-tap clock is enforced in the client
+// UI (ticks are not sent over the network); the server enforces the same total
+// budget as the client (plus a little for page mount and network) so a stalled
+// or cheating client can't hold the match open.
+export const PROOF_CAP_SECONDS = PROVE_TOTAL_SECONDS + 3;
 export const CONUNDRUM_SECONDS = 30;
 export const GRACE_MS = 2000;
 
@@ -377,6 +379,25 @@ export async function nextRound(deps: ServerDeps, userId: string, matchId: strin
 }
 
 // ------------------------------------------------------------- gameplay
+
+export async function resignMatch(deps: ServerDeps, userId: string, matchId: string): Promise<void> {
+  const before = await loadMatch(deps, matchId);
+  const wasPlaying = before.state.phase === "playing";
+  const roundIndex = before.state.roundIndex;
+  await mutate(deps, matchId, userId, async ({ state }) => {
+    if (state.phase !== "playing" && state.phase !== "reveal") fail(409, "Match is not in progress");
+    return matchReducer(state, { type: "RESIGN", player: userId });
+  });
+  // The unfinished round's answer can be shown now that the match is over.
+  if (wasPlaying) {
+    const upd = await deps.admin
+      .from("rounds")
+      .update({ status: "revealed" })
+      .eq("match_id", matchId)
+      .eq("idx", roundIndex);
+    if (upd.error) fail(500, upd.error.message);
+  }
+}
 
 function currentRoundOrFail(state: MatchState, kind: RoundKind): void {
   if (state.phase !== "playing" || state.round?.kind !== kind) fail(409, `Not a ${kind} round in play`);

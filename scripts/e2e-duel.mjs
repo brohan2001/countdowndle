@@ -1,12 +1,12 @@
 // Two-browser duel smoke test: two guests play a full quick match through the
-// real UI against a LOCAL Supabase + `pnpm dev -p 3114`. Not part of the gate
+// real UI against a LOCAL Supabase + `pnpm dev`. Not part of the gate
 // (needs Docker, a browser and ~45s). See docs/E2E.md.
 import { chromium } from "playwright";
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
 
 const ROOT = process.env.REPO_ROOT ?? process.cwd();
-const BASE = process.env.BASE_URL ?? "http://localhost:3114";
+const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 const SHOTS = (process.env.SHOTS_DIR ?? "/tmp/duel-shots") + "/";
 const env = Object.fromEntries(readFileSync(`${ROOT}/.env.local`, "utf8").split("\n").filter(l => l.includes("=")).map(l => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
 const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
@@ -19,10 +19,6 @@ const mkPlayer = async (name) => {
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-  await page.goto(`${BASE}/account`);
-  await page.getByLabel("Display name").fill(name);
-  await page.getByRole("button", { name: "Play anonymously" }).click();
-  await page.getByText(`Playing as ${name}`).waitFor({ timeout: 15000 });
   return { name, page, errors };
 };
 const shot = (p, n) => p.page.screenshot({ path: `${SHOTS}${n}.png`, fullPage: true });
@@ -30,18 +26,21 @@ const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
 const A = await mkPlayer("Alice");
 const B = await mkPlayer("Bob");
-log("both signed in as guests");
 
-// ---- lobby
+// ---- lobby. Alice signs in as a guest inline on /duel; Bob opens the room
+// link signed out and joins as a guest right there (no /account detour).
 await A.page.goto(`${BASE}/duel`);
+await A.page.getByLabel("Display name").fill(A.name);
+await A.page.getByRole("button", { name: "Play as guest" }).click();
+await A.page.getByText(/Playing as/).waitFor({ timeout: 15000 });
 await A.page.getByRole("button", { name: "Create room" }).click();
 await A.page.waitForURL(/\/duel\/[A-Z2-9]{6}$/);
 const code = A.page.url().split("/").pop();
 log("room", code);
-await B.page.goto(`${BASE}/duel`);
-await B.page.getByLabel("Room code").fill(code);
-await B.page.getByRole("button", { name: "Join" }).click();
-await B.page.waitForURL(`**/duel/${code}`);
+await B.page.goto(`${BASE}/duel/${code}`);
+await B.page.getByLabel("Display name").fill(B.name);
+await B.page.getByRole("button", { name: "Join as guest" }).click();
+log("both signed in as guests inline");
 await A.page.getByText("Both players are here.").waitFor({ timeout: 15000 });
 await shot(A, "01-lobby-host");
 await B.page.getByText("Waiting for the host to start.").waitFor();
@@ -145,7 +144,23 @@ await shot(A, "10-final-A");
 await shot(B, "11-final-B");
 log("FINAL A:", (await A.page.locator("h2").first().innerText()), "| B:", (await B.page.locator("h2").first().innerText()));
 
+// ---- second match: Bob resigns mid-letters
+await A.page.goto(`${BASE}/duel`);
+await A.page.getByRole("button", { name: "Create room" }).click();
+await A.page.waitForURL((u) => /\/duel\/[A-Z2-9]{6}$/.test(u.pathname) && !u.pathname.endsWith(code));
+const code2 = A.page.url().split("/").pop();
+await B.page.goto(`${BASE}/duel/${code2}`);
+await A.page.getByText("Both players are here.").waitFor({ timeout: 15000 });
+await A.page.getByRole("button", { name: "Start the match" }).click();
+await B.page.getByRole("group", { name: "Letters board" }).waitFor({ timeout: 15000 });
+await B.page.getByRole("button", { name: "Resign" }).click();
+await B.page.getByRole("button", { name: "Yes, resign" }).click();
+await A.page.getByText("Bob resigned.").waitFor({ timeout: 15000 });
+await shot(A, "12-resigned-A");
+log("resign: A sees", await A.page.locator("h2").first().innerText());
+const matchId2 = (await admin.from("matches").select("id").eq("code", code2).single()).data.id;
+
 for (const P of [A, B]) if (P.errors.length) console.log(P.name, "browser errors:", P.errors.slice(0, 5));
-await admin.from("matches").delete().eq("id", matchId);
+await admin.from("matches").delete().in("id", [matchId, matchId2]);
 await browser.close();
 log("E2E PASS");
