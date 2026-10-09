@@ -4,6 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## ⚠️ New session? Read `docs/HANDOFF.md` first
+
+It has the run commands, current status, open issues, user-only blockers and gotchas. Then `docs/PLAN.md` / `docs/RUNLOG.md` for detail.
+
+---
+
 ## Workflow: Claude as lead orchestrator (approved by the user, 2026-10-09)
 
 The execution plan is `docs/PLAN.md` (copy of the root `PLAN.md`). Read it at the start of a session, tick its `[ ]` checkboxes as checkpoints land, and log each run in `docs/RUNLOG.md`.
@@ -185,6 +191,8 @@ Source of truth for status is `docs/PLAN.md` (ticked checkboxes) and `docs/RUNLO
 4. **Visual QA** — duel screens were reviewed from screenshots; Letters/Numbers/Conundrum/Daily/account pages were only smoke-tested (HTTP 200) plus the duel E2E.
 
 **Known gaps / deliberate deviations:** per-tap proof clock is client-side (server caps the whole proof at 90 s); duel letters picker turns are nominal; no rate limiting; no abandon/forfeit handling; `agy` workers can't run shell commands headless (allowlist needed if you want them to self-run tests).
+
+**Open issues (2026-10-10, details in `docs/HANDOFF.md`):** (1) no back/home navigation, especially after finishing the Daily Countdown; (2) `proxy.ts` makes every page wait ~25 s when `.env.local` is set but Supabase isn't running (needs a short timeout + swallowed errors); (3) visual QA of non-duel pages still pending.
 
 **Later (not in plan):** formats/bots/Goatdown/ratings, leaderboards UI, night-desk dark palette, chat, tournaments, other languages.
 
