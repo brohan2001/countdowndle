@@ -20,9 +20,10 @@ function MuteToggle() {
       aria-pressed={muted}
       aria-label={muted ? "Turn sound on" : "Turn sound off"}
       title={muted ? "Sound off" : "Sound on"}
-      className="rounded-desk border-[1.5px] border-tile-edge bg-paper px-2 py-1 text-sm font-bold text-ink-soft transition hover:border-brass hover:text-ink"
+      className="rounded-desk border-[1.5px] border-tile-edge bg-paper px-2 py-1 text-sm font-bold whitespace-nowrap text-ink-soft transition hover:border-brass hover:text-ink"
     >
-      {muted ? "♪̸ Off" : "♪ On"}
+      <span aria-hidden className={muted ? "line-through opacity-60" : ""}>♪</span>
+      <span className="hidden sm:inline"> {muted ? "Off" : "On"}</span>
     </button>
   );
 }
@@ -56,7 +57,7 @@ export function SiteHeader() {
         </div>
         <div className="text-center">
           {!isHome && (
-            <Link href="/" className="font-serif text-xl font-semibold text-ink">
+            <Link href="/" className="font-serif text-lg font-semibold whitespace-nowrap text-ink sm:text-xl">
               Countdowndle
             </Link>
           )}

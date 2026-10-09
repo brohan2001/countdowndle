@@ -236,7 +236,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - [x] `/daily` route (`checkpoint/daily-seed`, `checkpoint/daily-storage`, `checkpoint/daily-ui`).
 
 ### M5: Deploy the static app
-- [ ] Record the dictionary license. **This is a blocker; the user must confirm the source.**
+- [x] Record the dictionary license: ESDB/SCOWL size 70, GBz, reproduced byte for byte (`docs/DICTIONARY.md`, 2026-10-10).
 - [ ] User: create a GitHub remote and a Vercel project, then push.
 - [x] Claude: add GitHub Actions CI running tsc, lint, vitest and build (`checkpoint/deploy-static`).
 
@@ -298,9 +298,9 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - Tag: `checkpoint/ux-fixes`.
 
 ### M9: Features (run 2)
-- [ ] `/dictionary` checker with provenance (SCOWL en_GB-ise) and a "not official Countdown rules" disclaimer.
-- [ ] `/contact`: GitHub issue links (templates in `.github/ISSUE_TEMPLATE`), mailto, and a feedback form (`feedback` table, insert-only RLS, rate-limited route).
-- [ ] Browser QA pass → `docs/QA.md`.
+- [x] `/dictionary` checker with provenance (SCOWL en_GB-ise) and a "not official Countdown rules" disclaimer.
+- [x] `/contact`: GitHub issue links (templates in `.github/ISSUE_TEMPLATE`), mailto, and a feedback form (`feedback` table, insert-only RLS, rate-limited route).
+- [x] Browser QA pass → `docs/QA.md`.
 
 ### M10: Deploy (run 2)
 - [ ] GitHub repo `brohan2001/countdowndle` (public) and push.
