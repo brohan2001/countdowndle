@@ -50,12 +50,12 @@ export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col items-center gap-8 px-4 py-10">
       <header className="flex flex-col items-center gap-3 text-center">
-        <h1 aria-label="Countdowndle" className="flex flex-wrap justify-center gap-1 sm:gap-1.5">
+        <h1 aria-label="Countdowndle" className="flex justify-center gap-0.5 sm:gap-1.5">
           {TITLE.split("").map((ch, i) => (
             <span
               key={i}
               aria-hidden
-              className="flex h-9 w-7 items-center justify-center rounded-desk border-[1.5px] border-tile-edge bg-paper font-serif text-xl font-bold text-ink shadow-paper sm:h-12 sm:w-10 sm:text-3xl"
+              className="flex h-8 w-6 items-center justify-center rounded-desk border-[1.5px] border-tile-edge bg-paper font-serif text-base font-bold text-ink shadow-paper sm:h-12 sm:w-10 sm:text-3xl"
             >
               {ch}
             </span>
