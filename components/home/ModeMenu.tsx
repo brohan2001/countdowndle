@@ -77,7 +77,7 @@ function MenuBar({
         >
           {item.title}
         </span>
-        <span className={`truncate ${tone.sub} ${lg ? "text-sm sm:text-base" : "text-xs sm:text-sm"}`}>
+        <span className={`line-clamp-2 sm:truncate ${tone.sub} ${lg ? "text-sm sm:text-base" : "text-xs sm:text-sm"}`}>
           {item.blurb}
         </span>
       </span>

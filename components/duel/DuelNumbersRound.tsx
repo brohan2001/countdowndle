@@ -139,7 +139,7 @@ function ProvePanel({
   return (
     <div className="flex flex-col items-center gap-4">
       <p className="font-serif text-xl font-semibold text-ink">Prove {declared}</p>
-      {proving && <ProveClocks state={local} onExpire={() => dispatch({ type: "PROVE_TIMEOUT" })} />}
+      {proving && <ProveClocks state={local} showTotal={false} onExpire={() => dispatch({ type: "PROVE_TIMEOUT" })} />}
       <TileRack
         tiles={local.pool}
         pendingOperand1={local.pendingOperand1}
@@ -159,7 +159,7 @@ function ProvePanel({
       />
       <StepHistory steps={local.steps} />
       <Button variant="secondary" disabled={!isWorking} onClick={() => dispatch({ type: "SUBMIT_ANSWER" })}>
-        Give up
+        Give up proof
       </Button>
     </div>
   );

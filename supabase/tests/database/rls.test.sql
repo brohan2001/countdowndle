@@ -1,5 +1,5 @@
 begin;
-select plan(24);
+select plan(27);
 
 -- Fixtures (run as the postgres superuser, which bypasses RLS).
 insert into auth.users (id, instance_id, aud, role, email, is_anonymous, raw_user_meta_data)
@@ -73,6 +73,14 @@ select throws_ok($$insert into public.buzzes (round_id, attempt, player_id) valu
 
 set local role anon;
 select throws_ok($$select count(*) from public.matches$$, '42501', null, 'anon role has no access to matches');
+select throws_ok($$insert into public.feedback (kind, message, client_hash) values ('bug', 'x', repeat('a', 64))$$, '42501', null, 'anon cannot write feedback directly');
+reset role;
+
+-- ---- feedback: server-only ----
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"a0000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+select throws_ok($$insert into public.feedback (kind, message, client_hash) values ('bug', 'x', repeat('a', 64))$$, '42501', null, 'signed-in users cannot write feedback directly');
+select throws_ok($$select count(*) from public.feedback$$, '42501', null, 'signed-in users cannot read feedback');
 
 select * from finish();
 rollback;
