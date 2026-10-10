@@ -237,7 +237,7 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 
 ### M5: Deploy the static app
 - [x] Record the dictionary license: ESDB/SCOWL size 70, GBz, reproduced byte for byte (`docs/DICTIONARY.md`, 2026-10-10).
-- [ ] User: create a GitHub remote and a Vercel project, then push.
+- [x] GitHub remote + Vercel project created and deployed (2026-10-11).
 - [x] Claude: add GitHub Actions CI running tsc, lint, vitest and build (`checkpoint/deploy-static`).
 
 ### M6: Backend — Supabase (auth + DB)
@@ -303,9 +303,9 @@ Most rule detail sits behind the logged-in "Rules" tab, so this list combines th
 - [x] Browser QA pass → `docs/QA.md`.
 
 ### M10: Deploy (run 2)
-- [ ] GitHub repo `brohan2001/countdowndle` (public) and push.
-- [ ] Hosted Supabase project: migrations, anonymous sign-ins, redirect URLs.
-- [ ] Vercel project, env vars, production deploy, hosted smoke test plus a duel E2E.
+- [x] GitHub repo `brohan2001/countdowndle` (public) and push; CI green.
+- [x] Hosted Supabase project `iunorldqwjoccqeisfyf` (ap-south-1): migrations, anonymous sign-ins, redirect URLs (`[remotes.production]` in config.toml).
+- [x] Vercel project `countdowndle` (bom1), env vars, production deploy https://countdowndle.vercel.app, hosted smoke test + 2/2 duel E2E. (GitHub auto-deploy pending the user's Vercel⇄GitHub login connection.)
 
 ### Later (not in this plan)
 Apterous extras (format engine + presets: 15/9-rounder, Speed, Unlimited, Attack modes, Top Dog; graded bots via Trie/solver; Letters length-declaration flow; Goatdown variant; Elo ratings + stats page), leaderboards UI, server-synced daily stats, chat, tournaments and events, spectating, other languages, the dark "night desk" palette, and the forum.
