@@ -412,3 +412,27 @@ enabled = true
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# Hosted production project (overrides the local settings above when running
+# `supabase config push --project-ref iunorldqwjoccqeisfyf`).
+[remotes.production]
+project_id = "iunorldqwjoccqeisfyf"
+
+[remotes.production.auth]
+site_url = "https://countdowndle.vercel.app"
+additional_redirect_urls = [
+  "https://countdowndle.vercel.app/**",
+  "https://*-rohanbalasubramanian-2886.vercel.app/**",
+  "http://localhost:3000/**",
+]
+
+[remotes.production.auth.email]
+# Hosted: confirm emails before an account (or a guest upgrade) is active,
+# and keep Supabase's hosted defaults for resend rate and OTP length.
+enable_confirmations = true
+max_frequency = "1m0s"
+otp_length = 8
+
+[remotes.production.auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true

@@ -184,7 +184,7 @@ Source of truth for status is `docs/PLAN.md` (ticked checkboxes) and `docs/RUNLO
 - M5 (partial): CI workflow only.
 - M6/M7: Supabase schema + RLS (pgTAP, mutation-checked), clients, `proxy.ts`, `/account`, authoritative `matchService`, route handlers, `/duel` realtime UI, two-browser E2E (`scripts/e2e-duel.mjs`, `docs/E2E.md`). All verified against a LOCAL Supabase (Docker).
 
-**Blocked on the user (hard stops from PLAN.md):**
+**Blocked on the user (historical — items 1–3 resolved 2026-10-11):**
 1. **Dictionary license** — `public/dictionary/words.txt` has no recorded source/license (`docs/DICTIONARY.md`). Do not deploy publicly until confirmed.
 2. **GitHub remote + Vercel project** — create, then push (nothing has been pushed).
 3. **Hosted Supabase project** — create it, enable anonymous sign-ins and providers, run the two migrations, set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` and Vercel. Hosted-only behaviour (email confirmation, redirect URLs, realtime config) is unverified.
@@ -192,7 +192,7 @@ Source of truth for status is `docs/PLAN.md` (ticked checkboxes) and `docs/RUNLO
 
 **Known gaps / deliberate deviations:** per-tap proof clock is client-side (server caps the whole proof at 90 s); duel letters picker turns are nominal; no rate limiting; no abandon/forfeit handling; `agy` workers can't run shell commands headless (allowlist needed if you want them to self-run tests).
 
-**Open issues (2026-10-10, details in `docs/HANDOFF.md`):** (1) no back/home navigation, especially after finishing the Daily Countdown; (2) `proxy.ts` makes every page wait ~25 s when `.env.local` is set but Supabase isn't running (needs a short timeout + swallowed errors); (3) visual QA of non-duel pages still pending.
+**Run 2 (2026-10-10/11):** M8 UX fixes, M9 dictionary checker + contact/feedback, M10 deployed to https://countdowndle.vercel.app (Vercel bom1 + hosted Supabase `iunorldqwjoccqeisfyf`, ap-south-1; repo github.com/brohan2001/countdowndle). The dictionary blocker is resolved (ESDB/SCOWL size 70 GBz, reproducible). The user approved `agy --dangerously-skip-permissions`. Open items and QA findings: `docs/HANDOFF.md` §4 and `docs/QA.md`.
 
 **Later (not in plan):** formats/bots/Goatdown/ratings, leaderboards UI, night-desk dark palette, chat, tournaments, other languages.
 
